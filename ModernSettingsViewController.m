@@ -1729,6 +1729,7 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
 
 - (void)buildSettingsList {
     self.toggles = @[
+        @{ @"key": @"flex_twitter", @"titleKey": @"FLEX_OPTION_TITLE", @"subtitleKey": @"FLEX_OPTION_DETAIL_TITLE", @"default": @NO, @"type": @"toggle" },
         @{ @"key": @"restore_tweet_labels", @"titleKey": @"ENABLE_TWEET_LABELS_OPTION_TITLE", @"subtitleKey": @"ENABLE_TWEET_LABELS_OPTION_DETAIL_TITLE", @"default": @NO, @"type": @"toggle" }
     ];
     [self updateVisibleToggles];
@@ -1849,6 +1850,14 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
     NSString *key = objc_getAssociatedObject(sender, @"prefKey");
     if (key) {
         [[NSUserDefaults standardUserDefaults] setBool:sender.isOn forKey:key];
+        if ([key isEqualToString:@"flex_twitter"]) {
+            if (sender.isOn) {
+                [[objc_getClass("FLEXManager") sharedManager] showExplorer];
+            } else {
+                [[objc_getClass("FLEXManager") sharedManager] hideExplorer];
+            }
+        }
+
         if ([key isEqualToString:@"square_avatars"]) {
             [self showRestartRequiredAlert:@"RESTART_REQUIRED_ALERT_MESSAGE_SQUARE_AVATARS"];
         }

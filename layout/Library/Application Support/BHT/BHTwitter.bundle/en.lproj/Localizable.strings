@@ -242,8 +242,8 @@
 /*Debug*/
 "DEBUG_SECTION_HEADER_TITLE" = "Debug";
 
-"FLEX_OPTION_TITLE" = "FLEX debug mode";
-"FLEX_OPTION_DETAIL_TITLE" = "Use FLEX to debug Twitter.";
+"FLEX_OPTION_TITLE" = "Debug mode";
+"FLEX_OPTION_DETAIL_TITLE" = "Enables FLEX for debugging and inspecting Twitter's views and data.";
 
 "CLEAR_SOURCE_LABEL_CACHE_TITLE" = "Clear cookies";
 "CLEAR_SOURCE_LABEL_CACHE_DETAIL_TITLE" = "Clears the source label cookies and forces them to refresh.";
@@ -316,6 +316,7 @@
 "CUSTOM_TAB_BAR_MESSAGES" = "Messages";
 "CUSTOM_TAB_BAR_GROK" = "Grok";
 "CUSTOM_TAB_BAR_VIDEO" = "Video";
+"CUSTOM_TAB_BAR_PROFILE" = "Profile";
 "CUSTOM_TAB_BAR_SECTION_1_TITLE" = "Enabled";
 "CUSTOM_TAB_BAR_SECTION_2_TITLE" = "Disabled";
 "CUSTOM_TAB_BAR_RESET_BUTTON" = "Restore to default";

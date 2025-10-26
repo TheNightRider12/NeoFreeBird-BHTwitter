@@ -229,9 +229,10 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
             [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_NOTIFICATIONS" pageID:@"ntab"],
             [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_MESSAGES" pageID:@"messages"],
             [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_GROK" pageID:@"grok"],
+            [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_PROFILE" pageID:@"profile"],
             [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_VIDEO" pageID:@"media"]
         ] mutableCopy];
-        self.enabledPageIDs = [NSMutableSet setWithArray:@[@"home", @"guide", @"grok", @"media", @"ntab", @"messages"]];
+        self.enabledPageIDs = [NSMutableSet setWithArray:@[@"home", @"guide", @"grok", @"media", @"ntab", @"profile", @"messages"]];
     }
     
     // Store initial state for comparison later
@@ -287,6 +288,11 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
     NSData *disabledData = [NSKeyedArchiver archivedDataWithRootObject:disabledItems];
     [[NSUserDefaults standardUserDefaults] setObject:enabledData forKey:@"allowed"];
     [[NSUserDefaults standardUserDefaults] setObject:disabledData forKey:@"hidden"];
+    // Keep feature flags in sync with tab choices
+    BOOL grokEnabled = [self.enabledPageIDs containsObject:@"grok"];
+    [[NSUserDefaults standardUserDefaults] setBool:grokEnabled forKey:@"ios_tab_bar_default_show_grok"];
+    BOOL profileEnabled = [self.enabledPageIDs containsObject:@"profile"];
+    [[NSUserDefaults standardUserDefaults] setBool:profileEnabled forKey:@"ios_tab_bar_default_show_profile"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
     self.hasChanges = NO;
@@ -360,6 +366,8 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
         iconName = isEnabled ? @"spaces" : @"spaces_stroke";
     } else if ([item.pageID isEqualToString:@"communities"]) {
         iconName = isEnabled ? @"communities" : @"communities_stroke";
+    } else if ([item.pageID isEqualToString:@"profile"]) {
+        iconName = isEnabled ? @"person" : @"person_stroke";
     } else if ([item.pageID isEqualToString:@"ntab"]) {
         iconName = isEnabled ? @"notifications" : @"notifications_stroke";
     } else if ([item.pageID isEqualToString:@"messages"]) {
