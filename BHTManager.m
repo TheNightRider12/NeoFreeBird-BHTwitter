@@ -20,15 +20,15 @@
 }
 + (void)cleanCache {
     NSArray <NSURL *> *DocumentFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL fileURLWithPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject] includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
-    
+
     for (NSURL *file in DocumentFiles) {
         if ([file.pathExtension.lowercaseString isEqualToString:@"mp4"]) {
             [[NSFileManager defaultManager] removeItemAtURL:file error:nil];
         }
     }
-    
+
     NSArray <NSURL *> *TempFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL fileURLWithPath:NSTemporaryDirectory()] includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
-    
+
     for (NSURL *file in TempFiles) {
         if ([file.pathExtension.lowercaseString isEqualToString:@"mp4"]) {
             [[NSFileManager defaultManager] removeItemAtURL:file error:nil];
@@ -112,10 +112,10 @@
         NSForegroundColorAttributeName: UIColor.labelColor
     }];
     TFNActiveTextItem *title = [[objc_getClass("TFNActiveTextItem") alloc] initWithTextModel:[[objc_getClass("TFNAttributedTextModel") alloc] initWithAttributedString:AttString] activeRanges:nil];
-    
+
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     [actions addObject:title];
-    
+
     for (StreamInformation *stream in [mediaInformation getStreams]) {
         NSNumber *width = [stream getWidth];
         NSNumber *height = [stream getHeight];
@@ -145,7 +145,7 @@
             [actions addObject:downloadOption];
         }
     }
-    
+
     TFNMenuSheetViewController *alert = [[objc_getClass("TFNMenuSheetViewController") alloc] initWithActionItems:[NSArray arrayWithArray:actions]];
     return alert;
 }
@@ -223,6 +223,9 @@
 }
 + (BOOL)hideTopicsToFollow {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"hide_topics_to_follow"];
+}
++ (BOOL)hideBlueVerified {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"hide_blue_verified"];
 }
 + (BOOL)hideViewCount {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"hide_view_count"];

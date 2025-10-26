@@ -74,6 +74,9 @@
 "TWEET_CONFIRM_OPTION_TITLE" = "Confirm Tweets";
 "TWEET_CONFIRM_OPTION_DETAIL_TITLE" = "Ask before you post a Tweet.";
 
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Hide Blue verified checkmarks";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Hide paid verified checkmark on Tweets. This does not include brand/government accounts.";
+
 "HIDE_VIEW_COUNT_OPTION_TITLE" = "Hide views";
 "HIDE_VIEW_COUNT_OPTION_DETAIL_TITLE" = "Don't show views under Tweets.";
 
@@ -294,7 +297,7 @@
 
 /*Theme*/
 "THEME_SETTINGS_NAVIGATION_TITLE" = "Theme";
-"THEME_SETTINGS_NAVIGATION_DETAIL" = "Choose a theme color for your Twitter experience that can only be seen by you.";
+"THEME_SETTINGS_NAVIGATION_DETAIL" = "Choose a theme color for your Twitter experience. This can only be seen by you.";
 "THEME_OPTION_1" = "Blue";
 "THEME_OPTION_2" = "Yellow";
 "THEME_OPTION_3" = "Red";
@@ -305,7 +308,7 @@
 /*Tab bar*/
 "CUSTOM_TAB_BAR_SETTINGS_NAVIGATION_TITLE" = "Custom navigation";
 "CUSTOM_TAB_BAR_NAVIGATION_DETAIL" = "Customize the naviagtion bar with your most-used Twitter destinations.";
-"CUSTOM_TAB_BAR_HOME" = "Home"; 
+"CUSTOM_TAB_BAR_HOME" = "Home";
 "CUSTOM_TAB_BAR_EXPLORE" = "Explore";
 "CUSTOM_TAB_BAR_SPACES" = "Spaces";
 "CUSTOM_TAB_BAR_COMMUNITIES" = "Communities";
@@ -357,7 +360,7 @@
 /*Modern Settings Layout*/
 
 "MODERN_SETTINGS_LAYOUT_TITLE" = "General";
-"MODERN_SETTINGS_LAYOUT_SUBTITLE" = "Make your timeline yours with custom fonts, navigation bar theming, and much more.";
+"MODERN_SETTINGS_LAYOUT_SUBTITLE" = "Make the timeline truly yours with custom fonts, navigation bar theming, and much more.";
 
 "MODERN_SETTINGS_MEDIA_TITLE" = "Photos & videos";
 "MODERN_SETTINGS_MEDIA_SUBTITLE" = "Download videos, enable video timestamps, and more.";
@@ -366,7 +369,7 @@
 "MODERN_SETTINGS_TWITTER_BLUE_SUBTITLE" = "Get an ad-free experience and unlock Blue features like Undo Tweet, themes, and custom app icons.";
 
 "MODERN_SETTINGS_PROFILES_TITLE" = "Profiles";
-"MODERN_SETTINGS_PROFILES_SUBTITLE" = "Change what you see on users profiles.";
+"MODERN_SETTINGS_PROFILES_SUBTITLE" = "Choose what you see on user profiles.";
 
 "MODERN_SETTINGS_TWEETS_TITLE" = "Tweets & replies";
 "MODERN_SETTINGS_TWEETS_SUBTITLE" = "Change the look of tweets and remove features you may not use.";
@@ -380,4 +383,4 @@
 "SPECIAL_THANKS_SECTION_HEADER_TITLE" = "Special thanks";
 "FOLLOW_OFFICIAL_PAGE_SECTION_HEADER_TITLE" = "Follow NeoFreeBird";
 
-"MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Nothing to see here.";
+"MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Nothing to see here - yet";

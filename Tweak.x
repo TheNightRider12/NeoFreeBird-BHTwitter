@@ -51,16 +51,16 @@ static const NSTimeInterval CACHE_INVALIDATION_INTERVAL = 10.0; // 10 seconds
 // Static helper function for recursive view traversal - OPTIMIZED VERSION
 static void BH_EnumerateSubviewsRecursively(UIView *view, void (^block)(UIView *currentView)) {
     if (!view || !block) return;
-    
+
     // Performance optimization: Skip hidden views and their subviews
     if (view.hidden || view.alpha <= 0.01) return;
-    
+
     block(view);
-    
+
     // Performance optimization: Limit recursion depth to prevent excessive traversal
     static NSInteger recursionDepth = 0;
     if (recursionDepth > 15) return; // Reasonable depth limit
-    
+
     recursionDepth++;
     for (UIView *subview in view.subviews) {
         BH_EnumerateSubviewsRecursively(subview, block);
@@ -111,17 +111,17 @@ static BOOL BHT_isTwitterDarkThemeActive() {
         }
         return NO;
     }
-    
+
     id currentPaletteContainer = [settings currentColorPalette]; // This is TAEThemeColorPalette
     // TAETwitterColorPaletteSettingInfo is returned by [TAEThemeColorPalette colorPalette]
-    if (!currentPaletteContainer || ![currentPaletteContainer respondsToSelector:@selector(colorPalette)]) { 
+    if (!currentPaletteContainer || ![currentPaletteContainer respondsToSelector:@selector(colorPalette)]) {
          if (@available(iOS 13.0, *)) {
             return UITraitCollection.currentTraitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
         }
         return NO;
     }
 
-    id actualPaletteInfo = [currentPaletteContainer colorPalette]; 
+    id actualPaletteInfo = [currentPaletteContainer colorPalette];
     if (actualPaletteInfo && [actualPaletteInfo respondsToSelector:@selector(isDark)]) {
         // Use objc_msgSend to call the isDark method
         return ((BOOL (*)(id, SEL))objc_msgSend)(actualPaletteInfo, @selector(isDark));
@@ -153,7 +153,7 @@ static UIFont * _Nullable TAEStandardFontGroupReplacement(UIFont *self, SEL _cmd
             origFont = orig(self, _cmd);
             break;
     };
-    
+
     UIFont *newFont  = BH_getDefaultFont(origFont);
     return newFont != nil ? newFont : origFont;
 }
@@ -187,7 +187,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 });
             }
         }];
-        
+
         // Also listen for app entering foreground
         [[NSNotificationCenter defaultCenter] addObserverForName:@"UIApplicationWillEnterForegroundNotification"
                                                          object:nil
@@ -199,7 +199,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 });
             }
         }];
-        
+
         BHT_themeManagerInitialized = YES;
     }
     return instance;
@@ -207,18 +207,18 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 
 - (void)setPrimaryColorOption:(NSInteger)colorOption {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    
+
     // If we have a BHTwitter theme selected, ensure it takes precedence
     if ([defaults objectForKey:@"bh_color_theme_selectedColor"]) {
         NSInteger ourSelectedOption = [defaults integerForKey:@"bh_color_theme_selectedColor"];
-        
+
         // Only allow changes that match our selection (avoids fighting with Twitter's system)
         if (colorOption == ourSelectedOption || BHT_isInThemeChangeOperation) {
             %orig(colorOption);
         } else {
             // If not from our theme operation, apply our own theme instead
             %orig(ourSelectedOption);
-            
+
             // Also ensure Twitter's defaults match our setting for consistency
             [defaults setObject:@(ourSelectedOption) forKey:@"T1ColorSettingsPrimaryColorOptionKey"];
         }
@@ -230,10 +230,10 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 
 - (void)applyCurrentColorPalette {
     %orig;
-    
+
     // Signal UI to refresh after Twitter applies its palette
-    if ([NSUserDefaults.standardUserDefaults objectForKey:@"bh_color_theme_selectedColor"] && 
-        !BHT_isInThemeChangeOperation && 
+    if ([NSUserDefaults.standardUserDefaults objectForKey:@"bh_color_theme_selectedColor"] &&
+        !BHT_isInThemeChangeOperation &&
         [BHTManager classicTabBarEnabled]) {
         // This call happens after Twitter has applied its color changes,
         // so we need to refresh our tab bar theming
@@ -250,7 +250,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 + (void)_t1_applyPrimaryColorOption {
     // Execute original implementation to let Twitter update its internal state
     %orig;
-    
+
     // If we have an active theme, ensure it's properly applied
     if ([NSUserDefaults.standardUserDefaults objectForKey:@"bh_color_theme_selectedColor"]) {
         // Synchronize our theme if needed (without forcing)
@@ -261,9 +261,9 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 + (void)_t1_updateOverrideUserInterfaceStyle {
     // Let Twitter update its UI style
     %orig;
-    
+
     // Ensure our theme isn't lost during dark/light mode changes
-    if ([NSUserDefaults.standardUserDefaults objectForKey:@"bh_color_theme_selectedColor"] && 
+    if ([NSUserDefaults.standardUserDefaults objectForKey:@"bh_color_theme_selectedColor"] &&
         [BHTManager classicTabBarEnabled]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             BHT_UpdateAllTabBarIcons();
@@ -280,7 +280,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([defaultName isEqualToString:@"T1ColorSettingsPrimaryColorOptionKey"]) {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         id selectedColor = [defaults objectForKey:@"bh_color_theme_selectedColor"];
-        
+
         if (selectedColor != nil && !BHT_isInThemeChangeOperation) {
             // If our theme is active and this change isn't part of our operation,
             // only allow the change if it matches our selection
@@ -290,7 +290,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }
         }
     }
-    
+
     %orig;
 }
 
@@ -300,8 +300,8 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 %hook T1AppDelegate
 - (_Bool)application:(UIApplication *)application didFinishLaunchingWithOptions:(id)arg2 {
     _Bool orig = %orig;
-    
-    
+
+
     if (![[NSUserDefaults standardUserDefaults] objectForKey:@"FirstRun_4.3"]) {
         [[NSUserDefaults standardUserDefaults] setValue:@"1strun" forKey:@"FirstRun_4.3"];
         [[NSUserDefaults standardUserDefaults] setBool:true forKey:@"dw_v"];
@@ -330,7 +330,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([BHTManager FLEX]) {
         [[%c(FLEXManager) sharedManager] showExplorer];
     }
-    
+
     // Apply theme immediately after launch - simplified version using our new system
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"bh_color_theme_selectedColor"]) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -338,14 +338,14 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             BHT_ensureThemingEngineSynchronized(YES);
         });
     }
-    
+
     // Start the cookie initialization process with retry mechanism
     if ([BHTManager RestoreTweetLabels]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [TweetSourceHelper initializeCookiesWithRetry];
         });
     }
-    
+
     return orig;
 }
 
@@ -353,7 +353,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     NSLog(@"[BHTwitter] applicationDidBecomeActive - START");
     %orig;
     NSLog(@"[BHTwitter] applicationDidBecomeActive - orig called");
-    
+
     // Re-apply theme on becoming active - simpler with our new management system
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"bh_color_theme_selectedColor"]) {
         NSLog(@"[BHTwitter] applicationDidBecomeActive - applying theme");
@@ -394,12 +394,12 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 
 - (void)applicationWillResignActive:(id)arg1 {
     %orig;
-    
+
     // Clean up source label timers to prevent crashes
     if ([BHTManager RestoreTweetLabels]) {
         [TweetSourceHelper cleanupTimersForBackground];
     }
-    
+
     if ([BHTManager Padlock]) {
         UIImageView *image = [[UIImageView alloc] initWithFrame:self.window.bounds];
         [image setTag:909];
@@ -413,7 +413,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 }
 %end
 
-// MARK: prevent tab bar fade 
+// MARK: prevent tab bar fade
 %hook T1TabBarViewController
 
 - (void)setTabBarScrolling:(BOOL)scrolling {
@@ -443,7 +443,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             NSFileManager *manager = [NSFileManager defaultManager];
             NSString *DocPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true).firstObject;
             NSURL *imagePath = [[NSURL fileURLWithPath:DocPath] URLByAppendingPathComponent:@"msg_background.png"];
-            
+
             if ([manager fileExistsAtPath:imagePath.path]) {
                 UIImageView *backgroundImage = [[UIImageView alloc] initWithFrame:UIScreen.mainScreen.bounds];
                 backgroundImage.image = [UIImage imageNamed:imagePath.path];
@@ -451,7 +451,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 [self.view insertSubview:backgroundImage atIndex:0];
             }
         }
-        
+
         if ([[NSUserDefaults standardUserDefaults] objectForKey:@"background_color"]) { // set the backgeound as color
             NSString *hexCode = [[NSUserDefaults standardUserDefaults] objectForKey:@"background_color"];
             UIColor *selectedColor = [UIColor colorFromHexString:hexCode];
@@ -472,7 +472,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
         [copyButton setImage:[UIImage systemImageNamed:@"doc.on.clipboard"] forState:UIControlStateNormal];
         if (@available(iOS 14.0, *)) {
             [copyButton setShowsMenuAsPrimaryAction:true];
-            
+
             [copyButton setMenu:[UIMenu menuWithTitle:@"" children:@[
                 [UIAction actionWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"COPY_PROFILE_INFO_MENU_OPTION_1"] image:[UIImage systemImageNamed:@"doc.on.clipboard"] identifier:nil handler:^(__kindof UIAction * _Nonnull action) {
                 if (self.viewModel.bio != nil)
@@ -495,7 +495,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                     UIPasteboard.generalPasteboard.string = self.viewModel.location;
             }],
             ]]];
-            
+
         } else {
             [copyButton addTarget:self action:@selector(copyButtonHandler:) forControlEvents:UIControlEventTouchUpInside];
         }
@@ -505,13 +505,13 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
         [copyButton.layer setBorderColor:[UIColor colorFromHexString:@"2F3336"].CGColor];
         [copyButton setTranslatesAutoresizingMaskIntoConstraints:false];
         [headerView.actionButtonsView addSubview:copyButton];
-        
+
         [NSLayoutConstraint activateConstraints:@[
             [copyButton.centerYAnchor constraintEqualToAnchor:headerView.actionButtonsView.centerYAnchor],
             [copyButton.widthAnchor constraintEqualToConstant:32],
             [copyButton.heightAnchor constraintEqualToConstant:32],
         ]];
-        
+
         if (isDeviceLanguageRTL()) {
             [NSLayoutConstraint activateConstraints:@[
                 [copyButton.leadingAnchor constraintEqualToAnchor:innerContentView.trailingAnchor constant:7],
@@ -570,22 +570,22 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 - (id)_t1_followCountTextWithLabel:(id)label singularLabel:(id)singularLabel count:(id)count highlighted:(_Bool)highlighted {
     // First get the original result to understand the expected return type
     id originalResult = %orig;
-    
+
     // Only proceed if we have a valid count that's an NSNumber
     if (count && [count isKindOfClass:[NSNumber class]]) {
         NSNumber *number = (NSNumber *)count;
-        
+
         // Only show full numbers for counts under 10,000
         if ([number integerValue] >= 10000) {
             return originalResult;
         }
-        
+
         // Format the number with the current locale's formatting
         NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
         [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
         [formatter setUsesGroupingSeparator:YES];
         NSString *formattedCount = [formatter stringFromNumber:number];
-        
+
         // If original result is an NSString, find and replace abbreviated numbers
         if ([originalResult isKindOfClass:[NSString class]]) {
             NSString *originalString = (NSString *)originalResult;
@@ -599,12 +599,12 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
         else if ([originalResult isKindOfClass:[NSAttributedString class]]) {
             NSMutableAttributedString *mutableResult = [[NSMutableAttributedString alloc] initWithAttributedString:(NSAttributedString *)originalResult];
             NSString *originalText = mutableResult.string;
-            
+
             // Updated regex to match patterns like "1.7K", "1,7K", "6.2K", "6,2K", etc.
             // This handles both period and comma as decimal separators
             NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\d+[.,]\\d+[KMB]|\\d+[KMB]" options:0 error:nil];
             NSArray *matches = [regex matchesInString:originalText options:0 range:NSMakeRange(0, originalText.length)];
-            
+
             // Replace matches in reverse order to maintain correct indices
             for (NSTextCheckingResult *match in [matches reverseObjectEnumerator]) {
                 [mutableResult replaceCharactersInRange:match.range withString:formattedCount];
@@ -638,33 +638,32 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     UITableViewCell *_orig = %orig;
     id tweet = [self itemAtIndexPath:arg2];
     NSString *class_name = NSStringFromClass([tweet classForCoder]);
-    
 
-    
+
+
     if ([BHTManager HidePromoted] && [tweet respondsToSelector:@selector(isPromoted)] && [tweet performSelector:@selector(isPromoted)]) {
         [_orig setHidden:YES];
     }
-    
-    
+
     if ([self.adDisplayLocation isEqualToString:@"PROFILE_TWEETS"]) {
         if ([BHTManager hideWhoToFollow]) {
             if ([class_name isEqualToString:@"T1URTTimelineUserItemViewModel"] || [class_name isEqualToString:@"T1TwitterSwift.URTTimelineCarouselViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleHeaderViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleFooterViewModel"]) {
                 [_orig setHidden:true];
             }
         }
-        
+
         if ([BHTManager hideTopicsToFollow]) {
             if ([class_name isEqualToString:@"T1TwitterSwift.URTTimelineTopicCollectionViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleHeaderViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleFooterViewModel"] || [class_name isEqualToString:@"TwitterURT.URTTimelineCarouselViewModel"]) {
                 [_orig setHidden:true];
             }
         }
     }
-    
+
     if ([self.adDisplayLocation isEqualToString:@"OTHER"]) {
         if ([BHTManager HidePromoted] && ([class_name isEqualToString:@"TwitterURT.URTModuleHeaderViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleFooterViewModel"] || [class_name isEqualToString:@"T1URTTimelineMessageItemViewModel"])) {
             [_orig setHidden:true];
         }
-        
+
         if ([BHTManager HidePromoted] && [class_name isEqualToString:@"TwitterURT.URTTimelineEventSummaryViewModel"]) {
             // Hide all EventSummaryViewModel items, not just promoted ones
             [_orig setHidden:true];
@@ -679,7 +678,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             [_orig setHidden:true];
         }
     }
-    
+
     if ([self.adDisplayLocation isEqualToString:@"TIMELINE_HOME"]) {
         if ([tweet isKindOfClass:%c(T1URTTimelineStatusItemViewModel)]) {
             T1URTTimelineStatusItemViewModel *fullTweet = tweet;
@@ -689,7 +688,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 }
             }
         }
-        
+
         if ([BHTManager HideTopics]) {
             if ([tweet isKindOfClass:%c(_TtC10TwitterURT26URTTimelinePromptViewModel)]) {
                 [_orig setHidden:true];
@@ -708,19 +707,19 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }
         }
     }
-    
 
-    
+
+
     return _orig;
 }
 - (double)tableView:(id)arg1 heightForRowAtIndexPath:(id)arg2 {
     id tweet = [self itemAtIndexPath:arg2];
     NSString *class_name = NSStringFromClass([tweet classForCoder]);
-    
+
     if ([BHTManager HidePromoted] && [tweet respondsToSelector:@selector(isPromoted)] && [tweet performSelector:@selector(isPromoted)]) {
         return 0;
     }
-    
+
     if ([self.adDisplayLocation isEqualToString:@"PROFILE_TWEETS"]) {
         if ([BHTManager hideWhoToFollow]) {
             if ([class_name isEqualToString:@"T1URTTimelineUserItemViewModel"] || [class_name isEqualToString:@"T1TwitterSwift.URTTimelineCarouselViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleHeaderViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleFooterViewModel"]) {
@@ -733,12 +732,12 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }
         }
     }
-    
+
     if ([self.adDisplayLocation isEqualToString:@"OTHER"]) {
         if ([BHTManager HidePromoted] && ([class_name isEqualToString:@"TwitterURT.URTModuleHeaderViewModel"] || [class_name isEqualToString:@"TwitterURT.URTModuleFooterViewModel"] || [class_name isEqualToString:@"T1URTTimelineMessageItemViewModel"])) {
             return 0;
         }
-        
+
         if ([BHTManager HidePromoted] && [class_name isEqualToString:@"TwitterURT.URTTimelineEventSummaryViewModel"]) {
             // Hide all EventSummaryViewModel items, not just promoted ones
             return 0;
@@ -754,18 +753,18 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             return 0;
         }
     }
-    
+
     if ([self.adDisplayLocation isEqualToString:@"TIMELINE_HOME"]) {
         if ([tweet isKindOfClass:%c(T1URTTimelineStatusItemViewModel)]) {
             T1URTTimelineStatusItemViewModel *fullTweet = tweet;
-            
+
             if ([BHTManager HideTopics]) {
                 if ((fullTweet.banner != nil) && [fullTweet.banner isKindOfClass:%c(TFNTwitterURTTimelineStatusTopicBanner)]) {
                     return 0;
                 }
             }
         }
-        
+
         if ([BHTManager HideTopics]) {
             if ([tweet isKindOfClass:%c(_TtC10TwitterURT26URTTimelinePromptViewModel)]) {
                 return 0;
@@ -784,9 +783,9 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }
         }
     }
-    
 
-    
+
+
     return %orig;
 }
 
@@ -815,7 +814,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([BHTManager DownloadingVideos]) {
         UIContextMenuInteraction *menuInteraction = [[UIContextMenuInteraction alloc] initWithDelegate:self];
         [self setUserInteractionEnabled:true];
-        
+
         if ([BHTManager isDMVideoCell:self.inlineMediaView]) {
             [self addInteraction:menuInteraction];
         }
@@ -835,10 +834,10 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
         NSForegroundColorAttributeName: UIColor.labelColor
     }];
     TFNActiveTextItem *title = [[%c(TFNActiveTextItem) alloc] initWithTextModel:[[%c(TFNAttributedTextModel) alloc] initWithAttributedString:AttString] activeRanges:nil];
-    
+
     NSMutableArray *actions = [[NSMutableArray alloc] init];
     [actions addObject:title];
-    
+
     T1PlayerMediaEntitySessionProducible *session = self.inlineMediaView.viewModel.playerSessionProducer.sessionProducible;
     for (TFSTwitterEntityMediaVideoVariant *i in session.mediaEntity.videoInfo.variants) {
         if ([i.contentType isEqualToString:@"video/mp4"]) {
@@ -852,14 +851,14 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }];
             [actions addObject:download];
         }
-        
+
         if ([i.contentType isEqualToString:@"application/x-mpegURL"]) {
             TFNActionItem *option = [objc_getClass("TFNActionItem") actionItemWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"FFMPEG_DOWNLOAD_OPTION_TITLE"] imageName:@"arrow_down_circle_stroke" action:^{
-                
+
                 self.hud = [JGProgressHUD progressHUDWithStyle:JGProgressHUDStyleDark];
                 self.hud.textLabel.text = [[BHTBundle sharedBundle] localizedStringForKey:@"FETCHING_PROGRESS_TITLE"];
                 [self.hud showInView:topMostController().view];
-                
+
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     MediaInformation *mediaInfo = [BHTManager getM3U8Information:[NSURL URLWithString:i.url]];
                     dispatch_async(dispatch_get_main_queue(), ^(void) {
@@ -869,13 +868,13 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                         [alert2 tfnPresentedCustomPresentFromViewController:topMostController() animated:YES completion:nil];
                     });
                 });
-                
+
             }];
-            
+
             [actions addObject:option];
         }
     }
-    
+
     TFNMenuSheetViewController *alert = [[%c(TFNMenuSheetViewController) alloc] initWithActionItems:[NSArray arrayWithArray:actions]];
     [alert tfnPresentedCustomPresentFromViewController:topMostController() animated:YES completion:nil];
 }
@@ -936,17 +935,17 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     UIImagePickerController *videoPicker = [[UIImagePickerController alloc] init];
     videoPicker.mediaTypes = @[(NSString*)kUTTypeMovie];
     videoPicker.delegate = self;
-    
+
     [topMostController() presentViewController:videoPicker animated:YES completion:nil];
 }
 %new - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<UIImagePickerControllerInfoKey,id> *)info {
     NSURL *videoURL = info[UIImagePickerControllerMediaURL];
     TTMAssetVoiceRecording *attachment = self.attachment;
     NSURL *recorder_url = [NSURL fileURLWithPath:attachment.filePath];
-    
+
     if (recorder_url != nil) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        
+
         NSError *error = nil;
         if ([fileManager fileExistsAtPath:[recorder_url path]]) {
             [fileManager removeItemAtURL:recorder_url error:&error];
@@ -954,13 +953,13 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 NSLog(@"[BHTwitter] Error removing existing file: %@", error);
             }
         }
-        
+
         [fileManager copyItemAtURL:videoURL toURL:recorder_url error:&error];
         if (error) {
             NSLog(@"[BHTwitter] Error copying file: %@", error);
         }
     }
-    
+
     [picker dismissViewControllerAnimated:true completion:nil];
 }
 %new - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -980,7 +979,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }
             TTAStatusInlineActionsView *actionsView = (TTAStatusInlineActionsView *)delegate;
             T1StatusCell *tweetView;
-            
+
             if ([actionsView.superview isKindOfClass:%c(T1StandardStatusView)]) { // normal tweet in the time line
                 tweetView = (T1StatusCell *)[(T1StandardStatusView *)actionsView.superview eventHandler];
             } else if ([actionsView.superview isKindOfClass:%c(T1TweetDetailsFocalStatusView)]) { // Focus tweet
@@ -990,7 +989,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             } else {
                 return %orig;
             }
-            
+
             UIImage *tweetImage = BH_imageFromView(tweetView);
             UIActivityViewController *acVC = [[UIActivityViewController alloc] initWithActivityItems:@[tweetImage] applicationActivities:nil];
             if (is_iPad()) {
@@ -1005,17 +1004,61 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 }
 %end
 
+// MARK: Hide Blue verified checkmark
+
+%hook T1CompositionStatusViewModel
+- (BOOL)isFromUserVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+- (BOOL)isFromUserBlueVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+%end
+
+%hook TFNTwitterStatus
+- (BOOL)isFromUserVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+- (BOOL)isFromUserBlueVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+%end
+
+%hook T1StandardUserViewModel
+- (BOOL)verified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+- (BOOL)isBlueVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+%end
+
+%hook T1ProfileUserViewModel
+- (BOOL)isVerifiedAccount {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+%end
+
+%hook T1TwitterCoreStatusViewModelAdapter
+- (BOOL)isFromUserVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+- (BOOL)isFromUserBlueVerified {
+    return [BHTManager hideBlueVerified] ? NO : %orig;
+}
+%end
+
 // MARK: Timeline download
 
 %hook TTAStatusInlineActionsView
 + (NSArray *)_t1_inlineActionViewClassesForViewModel:(id)arg1 options:(NSUInteger)arg2 displayType:(NSUInteger)arg3 account:(id)arg4 {
     NSArray *_orig = %orig;
     NSMutableArray *newOrig = [_orig mutableCopy];
-    
+
     if ([BHTManager isVideoCell:arg1] && [BHTManager DownloadingVideos]) {
         [newOrig addObject:%c(BHDownloadInlineButton)];
     }
-    
+
     if ([newOrig containsObject:%c(TTAStatusInlineAnalyticsButton)] && [BHTManager hideViewCount]) {
         [newOrig removeObject:%c(TTAStatusInlineAnalyticsButton)];
     }
@@ -1023,7 +1066,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([newOrig containsObject:%c(TTAStatusInlineBookmarkButton)] && [BHTManager hideBookmarkButton]) {
         [newOrig removeObject:%c(TTAStatusInlineBookmarkButton)];
     }
-    
+
     return [newOrig copy];
 }
 %end
@@ -1035,16 +1078,16 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if (![BHTManager alwaysOpenSafari]) {
         return %orig;
     }
-    
+
     NSURL *url = [self initialURL];
     NSString *urlStr = [url absoluteString];
-    
+
     // In-app browser is used for two-factor authentication with security key,
     // login will not complete successfully if it's redirected to Safari
     if ([urlStr containsString:@"twitter.com/account/"] || [urlStr containsString:@"twitter.com/i/flow/"]) {
         return %orig;
     }
-    
+
     [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
     [self dismissViewControllerAnimated:NO completion:nil];
 }
@@ -1053,15 +1096,15 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if (![BHTManager alwaysOpenSafari]) {
         return %orig;
     }
-    
+
     NSString *urlStr = [URL absoluteString];
-    
+
     // In-app browser is used for two-factor authentication with security key,
     // login will not complete successfully if it's redirected to Safari
     if ([urlStr containsString:@"twitter.com/account/"] || [urlStr containsString:@"twitter.com/i/flow/"]) {
         return %orig;
     }
-    
+
     // Open in Safari instead and return nil to prevent SFSafariViewController creation
     [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:nil];
     return nil;
@@ -1071,15 +1114,15 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if (![BHTManager alwaysOpenSafari]) {
         return %orig;
     }
-    
+
     NSString *urlStr = [URL absoluteString];
-    
+
     // In-app browser is used for two-factor authentication with security key,
     // login will not complete successfully if it's redirected to Safari
     if ([urlStr containsString:@"twitter.com/account/"] || [urlStr containsString:@"twitter.com/i/flow/"]) {
         return %orig;
     }
-    
+
     // Open in Safari instead and return nil to prevent SFSafariViewController creation
     [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:nil];
     return nil;
@@ -1150,7 +1193,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([key isEqualToString:@"edit_tweet_enabled"] || [key isEqualToString:@"edit_tweet_ga_composition_enabled"] || [key isEqualToString:@"edit_tweet_pdp_dialog_enabled"] || [key isEqualToString:@"edit_tweet_upsell_enabled"]) {
         return true;
     }
-    
+
     if ([key isEqualToString:@"grok_ios_profile_summary_enabled"] || [key isEqualToString:@"creator_monetization_dashboard_enabled"] || [key isEqualToString:@"creator_monetization_profile_subscription_tweets_tab_enabled"] || [key isEqualToString:@"creator_purchases_dashboard_enabled"]) {
         return false;
     }
@@ -1162,7 +1205,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([key isEqualToString:@"subscriptions_upsells_get_verified_profile"] || [key isEqualToString:@"ios_profile_analytics_upsell_possible_enabled"] || [key isEqualToString:@"ios_profile_analytics_upsell_enabled"]) {
         return false;
     }
-    
+
     if ([key isEqualToString:@"subscriptions_verification_info_is_identity_verified"] || [key isEqualToString:@"subscriptions_verification_info_reason_enabled"] || [key isEqualToString:@"subscriptions_verification_info_verified_since_enabled"]) {
         return false;
     }
@@ -1190,11 +1233,11 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([key isEqualToString:@"dash_items_download_grok_enabled"]) {
         return false;
     }
-    
+
     if ([key isEqualToString:@"conversational_replies_ios_minimal_detail_enabled"]) {
         return ![BHTManager OldStyle];
     }
-    
+
     if ([key isEqualToString:@"dm_compose_bar_v2_enabled"]) {
         return ![BHTManager dmComposeBarV2];
     }
@@ -1479,10 +1522,10 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     %orig;
     if ([self.sections count] == 1) {
         TFNItemsDataViewControllerBackingStore *backingStore = self.backingStore;
-        
+
         // Use Twitter's internal vector image system to get the Twitter bird icon
         UIImage *twitterIcon = nil;
-        
+
         // Choose color based on interface style
         UIColor *iconColor;
         if (@available(iOS 12.0, *)) {
@@ -1494,20 +1537,20 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
         } else {
             iconColor = [UIColor secondaryLabelColor];
         }
-        
+
         // Twitter vector image
         twitterIcon = [UIImage tfn_vectorImageNamed:@"twitter" fitsSize:CGSizeMake(20, 20) fillColor:iconColor];
-        
+
         // Create the settings item
         TFNSettingsNavigationItem *bhtwitter = [[%c(TFNSettingsNavigationItem) alloc] initWithTitle:[[BHTBundle sharedBundle] localizedStringForKey:@"BHTWITTER_SETTINGS_TITLE"] detail:[[BHTBundle sharedBundle] localizedStringForKey:@"BHTWITTER_SETTINGS_DETAIL"] iconName:nil controllerFactory:^UIViewController *{
             return [BHTManager BHTSettingsWithAccount:self.account];
         }];
-        
+
         // Set our Twitter icon
         if (twitterIcon) {
             [bhtwitter setValue:twitterIcon forKey:@"_icon"];
         }
-        
+
         if ([backingStore respondsToSelector:@selector(insertSection:atIndex:)]) {
             [backingStore insertSection:0 atIndex:1];
         } else {
@@ -1535,21 +1578,21 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0 && indexPath.row == 1) {
-        
+
         TFNTextCell *Tweakcell = [[%c(TFNTextCell) alloc] init];
         [Tweakcell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
         [Tweakcell.textLabel setText:[[BHTBundle sharedBundle] localizedStringForKey:@"BHTWITTER_SETTINGS_DETAIL"]];
         return Tweakcell;
     } else if (indexPath.section == 0 && indexPath.row == 0) {
-        
+
         TFNTextCell *Settingscell = [[%c(TFNTextCell) alloc] init];
         [Settingscell setBackgroundColor:[UIColor clearColor]];
         Settingscell.textLabel.textColor = [UIColor colorWithRed:0.40 green:0.47 blue:0.53 alpha:1.0];
         [Settingscell.textLabel setText:[[BHTBundle sharedBundle] localizedStringForKey:@"BHTWITTER_SETTINGS_TITLE"]];
         return Settingscell;
     }
-    
-    
+
+
     return %orig;
 }
 
@@ -1575,10 +1618,10 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             NSForegroundColorAttributeName: UIColor.labelColor
         }];
         TFNActiveTextItem *title = [[%c(TFNActiveTextItem) alloc] initWithTextModel:[[%c(TFNAttributedTextModel) alloc] initWithAttributedString:AttString] activeRanges:nil];
-        
+
         NSMutableArray *actions = [[NSMutableArray alloc] init];
         [actions addObject:title];
-        
+
         NSPropertyListFormat plistFormat;
         NSMutableDictionary *plistDictionary = [NSPropertyListSerialization propertyListWithData:[NSData dataWithContentsOfURL:[NSURL fileURLWithPath:@"/var/mobile/Library/Fonts/AddedFontCache.plist"]] options:NSPropertyListImmutable format:&plistFormat error:nil];
         [plistDictionary enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -1601,12 +1644,12 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
                 NSLog(@"Unable to find installed fonts /n reason: %@", exception.reason);
             }
         }];
-        
+
         TFNMenuSheetViewController *alert = [[%c(TFNMenuSheetViewController) alloc] initWithActionItems:[NSArray arrayWithArray:actions]];
         [alert tfnPresentedCustomPresentFromViewController:self animated:YES completion:nil];
     } else {
         UIAlertController *errAlert = [UIAlertController alertControllerWithTitle:@"BHTwitter" message:[[BHTBundle sharedBundle] localizedStringForKey:@"CUSTOM_FONTS_TUT_ALERT_MESSAGE"] preferredStyle:UIAlertControllerStyleAlert];
-        
+
         [errAlert addAction:[UIAlertAction actionWithTitle:@"iFont application" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://apps.apple.com/sa/app/ifont-find-install-any-font/id1173222289"] options:@{} completionHandler:nil];
         }]];
@@ -1621,14 +1664,14 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSMutableArray *fontsMethods = [NSMutableArray arrayWithArray:@[]];
-        
+
         unsigned int methodCount = 0;
         Method *methods = class_copyMethodList([self class], &methodCount);
         for (unsigned int i = 0; i < methodCount; ++i) {
             Method method = methods[i];
             SEL sel = method_getName(method);
             NSString *selStr = NSStringFromSelector(sel);
-            
+
             NSMethodSignature *methodSig = [self instanceMethodSignatureForSelector:sel];
             if (strcmp(methodSig.methodReturnType, @encode(void)) == 0) {
                 // Only add methods that return an object
@@ -1650,7 +1693,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
             }
         }
         free(methods);
-        
+
         originalFontsIMP = [NSMutableDictionary new];
         batchSwizzlingOnClass([self class], [fontsMethods copy], (IMP)TAEStandardFontGroupReplacement);
     });
@@ -1716,10 +1759,10 @@ static NSTimer *cookieRetryTimer = nil;
 + (void)initializeCookiesWithRetry {
     // Simplified initialization - just load hardcoded cookies
     isInitializingCookies = YES;
-    
+
     NSDictionary *hardcodedCookies = [self fetchCookies];
     [self cacheCookies:hardcodedCookies];
-    
+
     isInitializingCookies = NO;
 }
 
@@ -1732,22 +1775,22 @@ static NSTimer *cookieRetryTimer = nil;
     // This is a write operation, use a barrier
     dispatch_barrier_async(sourceLabelDataQueue, ^{
         if (!tweetSources) return;
-        
+
         __block NSUInteger count = 0;
         count = tweetSources.count;
 
         if (count > MAX_SOURCE_CACHE_SIZE) {
             [self logDebugInfo:[NSString stringWithFormat:@"Pruning cache with %ld entries", (long)count]];
-            
+
             NSMutableArray *keysToRemove = [NSMutableArray array];
-            
+
             [tweetSources enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
                 if (!obj || [obj isEqualToString:@""] || [obj isEqualToString:@"Source Unavailable"]) {
                     [keysToRemove addObject:key];
                     if (keysToRemove.count >= count / 4) *stop = YES;
                 }
             }];
-            
+
             if (keysToRemove.count < count / 5) {
                 NSArray *allKeys = [tweetSources allKeys];
                 for (int i = 0; i < 20 && keysToRemove.count < count / 4; i++) {
@@ -1757,12 +1800,12 @@ static NSTimer *cookieRetryTimer = nil;
                     }
                 }
             }
-            
+
             [self logDebugInfo:[NSString stringWithFormat:@"Removing %ld cache entries", (long)keysToRemove.count]];
-            
+
             for (NSString *key in keysToRemove) {
                 [tweetSources removeObjectForKey:key];
-                
+
                 NSTimer *timeoutTimer = fetchTimeouts[key];
                 if (timeoutTimer) {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1784,7 +1827,7 @@ static NSTimer *cookieRetryTimer = nil;
     NSMutableDictionary *realCookies = [NSMutableDictionary dictionary];
     NSArray *domains = @[@"api.twitter.com", @".twitter.com", @"x.com", @"api.x.com"];
     NSArray *requiredCookies = @[@"ct0", @"auth_token"];
-    
+
     for (NSString *domain in domains) {
         NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", domain]];
         NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
@@ -1794,13 +1837,13 @@ static NSTimer *cookieRetryTimer = nil;
             }
         }
     }
-    
+
     // Check if we have valid real cookies
-    BOOL hasValidRealCookies = realCookies.count > 0 && 
+    BOOL hasValidRealCookies = realCookies.count > 0 &&
                                realCookies[@"ct0"] && realCookies[@"auth_token"] &&
-                               [realCookies[@"ct0"] length] > 10 && 
+                               [realCookies[@"ct0"] length] > 10 &&
                                [realCookies[@"auth_token"] length] > 10;
-    
+
     if (hasValidRealCookies) {
         [self logDebugInfo:@"Using real user cookies"];
         return [realCookies copy];
@@ -1834,23 +1877,23 @@ static NSTimer *cookieRetryTimer = nil;
     if (!cookieCache || cookieCache.count == 0) {
         return YES;
     }
-    
+
     // Check if we're using real cookies (not hardcoded)
     BOOL usingRealCookies = ![cookieCache[@"ct0"] isEqualToString:@"91cc6876b96a35f91adeedc4ef149947c4d58907ca10fc2b17f64b17db0cccfb714ae61ede34cf34866166dcaf8e1c3a86085fa35c41aacc3e3927f7aa1f9b850b49139ad7633344059ff04af302d5d3"];
-    
+
     if (usingRealCookies && lastCookieRefresh) {
         // Refresh real cookies every 4 hours
         NSTimeInterval timeSinceRefresh = [[NSDate date] timeIntervalSinceDate:lastCookieRefresh];
         return timeSinceRefresh >= (4 * 60 * 60);
     }
-    
+
     // Never refresh hardcoded cookies
     return NO;
 }
 
 + (void)fetchSourceForTweetID:(NSString *)tweetID {
     if (!tweetID) return;
-    
+
     // Defer the entire operation to our concurrent queue to handle state checks and request creation safely
     dispatch_async(sourceLabelDataQueue, ^{
         @try {
@@ -1867,7 +1910,7 @@ static NSTimer *cookieRetryTimer = nil;
             }
 
         // Skip if already pending or has valid result
-        if ([fetchPending[tweetID] boolValue] || 
+        if ([fetchPending[tweetID] boolValue] ||
             (tweetSources[tweetID] && ![tweetSources[tweetID] isEqualToString:@""] && ![tweetSources[tweetID] isEqualToString:@"Source Unavailable"])) {
             return;
         }
@@ -1911,9 +1954,9 @@ static NSTimer *cookieRetryTimer = nil;
             [self loadCachedCookies];
         }
         NSDictionary *cookiesToUse = cookieCache;
-        
+
         // Check if using real cookies
-        BOOL usingRealCookies = cookiesToUse && 
+        BOOL usingRealCookies = cookiesToUse &&
                                ![cookiesToUse[@"ct0"] isEqualToString:@"91cc6876b96a35f91adeedc4ef149947c4d58907ca10fc2b17f64b17db0cccfb714ae61ede34cf34866166dcaf8e1c3a86085fa35c41aacc3e3927f7aa1f9b850b49139ad7633344059ff04af302d5d3"];
 
         // Build headers
@@ -1954,7 +1997,7 @@ static NSTimer *cookieRetryTimer = nil;
                 }
 
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-                
+
                 // Handle auth errors with fallback
                 if ((httpResponse.statusCode == 401 || httpResponse.statusCode == 403) && usingRealCookies && retryCount == 1) {
                     // Try hardcoded cookies once
@@ -1980,11 +2023,11 @@ static NSTimer *cookieRetryTimer = nil;
                     [self handleFetchFailure:tweetID];
                     return;
                 }
-                
+
                 // Extract source
                 NSDictionary *tweets = json[@"globalObjects"][@"tweets"];
                 NSDictionary *tweetData = tweets[tweetID];
-                    
+
                 // Try alternate ID format if not found
                 if (!tweetData) {
                     for (NSString *key in tweets) {
@@ -1994,7 +2037,7 @@ static NSTimer *cookieRetryTimer = nil;
                         }
                     }
                 }
-                
+
                 NSString *sourceHTML = tweetData[@"source"];
                 NSString *sourceText = @"Unknown Source";
 
@@ -2006,23 +2049,23 @@ static NSTimer *cookieRetryTimer = nil;
                         sourceText = [sourceText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
                     }
                     }
-                    
+
                 // Store and notify
                     tweetSources[tweetID] = sourceText;
                 fetchRetries[tweetID] = @(0); // Reset on success
-                
+
                 dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"TweetSourceUpdated" object:nil userInfo:@{@"tweetID": tweetID}];
                     [self updateFooterTextViewsForTweetID:tweetID];
                 });
-                
+
                             } @catch (NSException *e) {
                     [self handleFetchFailure:tweetID];
                 }
             });
         }];
         [task resume];
-        
+
         } @catch (NSException *e) {
             [self handleFetchFailure:tweetID];
         }
@@ -2031,7 +2074,7 @@ static NSTimer *cookieRetryTimer = nil;
 
 + (void)handleFetchFailure:(NSString *)tweetID {
     if (!tweetID) return;
-    
+
     // This is a write operation, but it's called from other synchronized blocks
     // So we don't need to wrap it again, but the caller must be synchronized
     fetchPending[tweetID] = @(NO);
@@ -2042,7 +2085,7 @@ static NSTimer *cookieRetryTimer = nil;
         });
         [fetchTimeouts removeObjectForKey:tweetID];
     }
-        
+
     NSInteger retryCount = [fetchRetries[tweetID] integerValue];
     if (retryCount < MAX_CONSECUTIVE_FAILURES) {
         // Simple retry after delay
@@ -2061,7 +2104,7 @@ static NSTimer *cookieRetryTimer = nil;
 + (void)timeoutFetchForTweetID:(NSTimer *)timer {
     NSString *tweetID = timer.userInfo[@"tweetID"];
     if (!tweetID) return;
-    
+
     dispatch_barrier_async(sourceLabelDataQueue, ^{
         // Safely invalidate timer on main thread
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -2220,7 +2263,7 @@ static NSTimer *cookieRetryTimer = nil;
                                 // Check for typical timestamp patterns or if the source might need to be appended/updated
                                 if ([text containsString:@"PM"] || [text containsString:@"AM"] ||
                                     [text rangeOfString:@"\\\\d{1,2}[:.]\\\\d{1,2}" options:NSRegularExpressionSearch].location != NSNotFound) {
-                                    
+
                                     // Check if this specific TFNAttributedTextView is NOT part of a quoted status view
                                     BOOL isSafeToUpdate = YES;
                                     UIView *parentCheck = textView;
@@ -2301,30 +2344,30 @@ static NSTimer *cookieRetryTimer = nil;
 
 - (void)setViewModel:(id)viewModel options:(unsigned long long)options account:(id)account {
     %orig(viewModel, options, account);
-    
+
     if (![BHTManager RestoreTweetLabels] || !viewModel) {
         return;
     }
-    
+
     // Get the TFNTwitterStatus - it might be the viewModel itself or a property
     TFNTwitterStatus *status = nil;
-    
+
     if ([viewModel isKindOfClass:%c(TFNTwitterStatus)]) {
         status = (TFNTwitterStatus *)viewModel;
     } else if ([viewModel respondsToSelector:@selector(status)]) {
         status = [viewModel performSelector:@selector(status)];
     }
-    
+
     if (!status) {
         return;
     }
-    
+
     // Get the tweet ID
     long long statusID = [status statusID];
     if (statusID <= 0) {
         return;
     }
-    
+
     NSString *tweetIDStr = [NSString stringWithFormat:@"%lld", statusID];
     if (!tweetIDStr || tweetIDStr.length == 0) {
                 return;
@@ -2334,13 +2377,13 @@ static NSTimer *cookieRetryTimer = nil;
     if (!tweetSources) {
         tweetSources = [NSMutableDictionary dictionary];
     }
-    
+
     // Fetch source if not cached
     if (!tweetSources[tweetIDStr]) {
         tweetSources[tweetIDStr] = @""; // Placeholder
         [TweetSourceHelper fetchSourceForTweetID:tweetIDStr];
     }
-    
+
     // Update footer text immediately if we have the source
     NSString *sourceText = tweetSources[tweetIDStr];
     if (sourceText && sourceText.length > 0 && ![sourceText isEqualToString:@"Source Unavailable"] && ![sourceText isEqualToString:@""]) {
@@ -2361,7 +2404,7 @@ static NSTimer *cookieRetryTimer = nil;
     __block id footerItem = nil;
     BH_EnumerateSubviewsRecursively(self, ^(UIView *view) {
         if (footerItem) return;
-        
+
         // Check if this view has a footerItem property
         if ([view respondsToSelector:@selector(footerItem)]) {
             id item = [view performSelector:@selector(footerItem)];
@@ -2370,7 +2413,7 @@ static NSTimer *cookieRetryTimer = nil;
             }
         }
     });
-    
+
     if (!footerItem || ![footerItem respondsToSelector:@selector(timeAgo)]) {
         return;
     }
@@ -2384,19 +2427,19 @@ static NSTimer *cookieRetryTimer = nil;
     if ([currentTimeAgo containsString:sourceText] || [currentTimeAgo containsString:@"Twitter for"] || [currentTimeAgo containsString:@"via "]) {
         return;
     }
-    
+
     // Create new timeAgo with source appended
     NSString *newTimeAgo = [NSString stringWithFormat:@"%@ · %@", currentTimeAgo, sourceText];
-    
+
     // Set the new timeAgo and hide view count
     if ([footerItem respondsToSelector:@selector(setTimeAgo:)]) {
         [footerItem performSelector:@selector(setTimeAgo:) withObject:newTimeAgo];
-        
+
         // Hide view count by setting it to nil
         if ([footerItem respondsToSelector:@selector(setViewCount:)]) {
             [footerItem performSelector:@selector(setViewCount:) withObject:nil];
         }
-        
+
         // Now update the footer text view to refresh the display
         id footerTextView = [self footerTextView];
         if (footerTextView && [footerTextView respondsToSelector:@selector(updateFooterTextView)]) {
@@ -2415,7 +2458,7 @@ static NSTimer *cookieRetryTimer = nil;
         %orig(model);
         return;
     }
-    
+
     NSString *currentText = model.attributedString.string;
     NSMutableAttributedString *newString = nil;
     BOOL modified = NO;
@@ -2426,14 +2469,14 @@ static NSTimer *cookieRetryTimer = nil;
             if (sourceText.length > 0 &&
                 ![sourceText isEqualToString:@"Source Unavailable"] &&
                 [currentText containsString:sourceText]) {
-                
+
                 NSRange sourceRange = [currentText rangeOfString:sourceText];
                 if (sourceRange.location != NSNotFound) {
                     UIColor *existingColor = [model.attributedString attribute:NSForegroundColorAttributeName
                                                                        atIndex:sourceRange.location
                                                                 effectiveRange:NULL];
                     UIColor *accentColor = BHTCurrentAccentColor();
-                    
+
                     if (!existingColor || ![existingColor isEqual:accentColor]) {
                         if (!newString) {
                             newString = [[NSMutableAttributedString alloc] initWithAttributedString:model.attributedString];
@@ -2448,7 +2491,7 @@ static NSTimer *cookieRetryTimer = nil;
             }
         }
     }
-    
+
     // --- Notification text replacements (always enabled) ---
     BOOL isNotificationView = NO;
     {
@@ -2474,7 +2517,7 @@ static NSTimer *cookieRetryTimer = nil;
             @{@"old": @"Reposted your Post", @"new": @"Retweeted your Tweet"},
             @{@"old": @"reposted your post", @"new": @"retweeted your Tweet"},
             @{@"old": @"reposted your Post", @"new": @"retweeted your Tweet"},
-            
+
             // Standalone "post" -> "Tweet"
             @{@"old": @"your post", @"new": @"your Tweet"},
             @{@"old": @"your Post", @"new": @"your Tweet"},
@@ -2501,7 +2544,7 @@ static NSTimer *cookieRetryTimer = nil;
                 NSDictionary *existingAttributes = [newString attributesAtIndex:searchRange.location effectiveRange:NULL];
                 [newString replaceCharactersInRange:searchRange withString:rep[@"new"]];
                 [newString setAttributes:existingAttributes range:NSMakeRange(searchRange.location, [rep[@"new"] length])];
-                
+
                 mutableStringContent = newString.string; // Update after change
                 searchRange = [mutableStringContent rangeOfString:rep[@"old"]];
                 modified = YES;
@@ -2525,9 +2568,9 @@ static NSTimer *cookieRetryTimer = nil;
 
 - (void)setImage:(UIImage *)image {
     %orig(image);
-    
+
     if (!image) return;
-    
+
     // Check if this is the Twitter bird icon by examining the image's dynamic color name
     if ([image respondsToSelector:@selector(tfn_dynamicColorImageName)]) {
         NSString *imageName = [image performSelector:@selector(tfn_dynamicColorImageName)];
@@ -2596,7 +2639,7 @@ static BOOL findAndHideButtonWithAccessibilityId(UIView *viewToSearch, NSString 
         if (!viewToSearch || !targetAccessibilityId || !viewToSearch.superview) {
             return NO;
         }
-        
+
         if ([viewToSearch isKindOfClass:NSClassFromString(@"TFNButton")]) {
             TFNButton *button = (TFNButton *)viewToSearch;
             if ([button.accessibilityIdentifier isEqualToString:targetAccessibilityId]) {
@@ -2604,7 +2647,7 @@ static BOOL findAndHideButtonWithAccessibilityId(UIView *viewToSearch, NSString 
                 return YES;
             }
         }
-        
+
         // Create a copy of subviews to avoid mutation during iteration
         NSArray *subviews = [viewToSearch.subviews copy];
         for (UIView *subview in subviews) {
@@ -2720,7 +2763,7 @@ static void findAndHideSuperFollowControl(UIView *viewToSearch) {
 static Class gT1ProfileHeaderViewControllerClass = nil;
 // Add global class pointers for Dash specific views
 static Class gDashAvatarImageViewClass = nil;
-static Class gDashDrawerAvatarImageViewClass = nil; 
+static Class gDashDrawerAvatarImageViewClass = nil;
 static Class gDashHostingControllerClass = nil;
 static Class gGuideContainerVCClass = nil;
 static Class gTombstoneCellClass = nil;
@@ -2733,19 +2776,19 @@ static UIViewController* getViewControllerForView(UIView *view) {
         if (!view) {
             return nil;
         }
-        
+
         UIResponder *responder = view;
         NSInteger maxIterations = 20; // Prevent infinite loops
         NSInteger currentIteration = 0;
-        
+
         while ((responder = [responder nextResponder]) && currentIteration < maxIterations) {
             currentIteration++;
-            
+
             // Safety check: Ensure responder is still valid
             if (!responder) {
                 break;
             }
-            
+
             if ([responder isKindOfClass:[UIViewController class]]) {
                 return (UIViewController *)responder;
             }
@@ -2764,7 +2807,7 @@ static UIViewController* getViewControllerForView(UIView *view) {
 // Helper function to check if a view is inside T1ProfileHeaderViewController
 static BOOL isViewInsideT1ProfileHeaderViewController(UIView *view) {
     if (!gT1ProfileHeaderViewControllerClass) {
-        return NO; 
+        return NO;
     }
     UIViewController *vc = getViewControllerForView(view);
     if (!vc) return NO;
@@ -2794,7 +2837,7 @@ static BOOL isViewInsideT1ProfileHeaderViewController(UIView *view) {
                      if([childVc isKindOfClass:gT1ProfileHeaderViewControllerClass]) return YES;
                  }
             }
-            break; 
+            break;
         }
     }
     return NO;
@@ -2833,7 +2876,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
                      if([childVc isKindOfClass:gDashHostingControllerClass]) return YES;
                  }
             }
-            break; 
+            break;
         }
     }
     return NO;
@@ -2851,7 +2894,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
     if (!playerToTimestampMap || !activePlayerVC || !activePlayerVC.isViewLoaded) {
         return NO;
     }
-    
+
     // Performance optimization: Check cache first to avoid repeated expensive searches
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
     if (currentTime - lastCacheInvalidation > CACHE_INVALIDATION_INTERVAL) {
@@ -2860,7 +2903,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
         }
         lastCacheInvalidation = currentTime;
     }
-    
+
     // Initialize cache if needed
     if (!labelSearchCache) {
         labelSearchCache = [NSMapTable weakToStrongObjectsMapTable];
@@ -2870,13 +2913,13 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
 
     // Performance optimization: Only do fresh find if really necessary
     BOOL needsFreshFind = (!timestampLabel || !timestampLabel.superview || ![timestampLabel.superview isDescendantOfView:activePlayerVC.view]);
-    if (timestampLabel && timestampLabel.superview && 
+    if (timestampLabel && timestampLabel.superview &&
         (![timestampLabel.text containsString:@":"] || ![timestampLabel.text containsString:@"/"])) {
         needsFreshFind = YES;
         [playerToTimestampMap removeObjectForKey:activePlayerVC];
         timestampLabel = nil;
     }
-    
+
     if (needsFreshFind) {
         // Performance optimization: Check if we recently failed to find a label for this VC
         NSNumber *lastSearchResult = [labelSearchCache objectForKey:activePlayerVC];
@@ -2885,35 +2928,35 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
         }
         __block UILabel *foundCandidate = nil;
         UIView *searchView = activePlayerVC.view;
-        
+
         // Performance optimization: Limit search scope to likely container views
         __block NSInteger searchCount = 0;
         const NSInteger MAX_SEARCH_COUNT = 100; // Prevent excessive searching
 
         BH_EnumerateSubviewsRecursively(searchView, ^(UIView *currentView) {
             if (foundCandidate || ++searchCount > MAX_SEARCH_COUNT) return;
-            
+
             // Performance optimization: Skip views that are unlikely to contain timestamp labels
             NSString *currentViewClass = NSStringFromClass([currentView class]);
-            if ([currentViewClass containsString:@"Button"] || 
+            if ([currentViewClass containsString:@"Button"] ||
                 [currentViewClass containsString:@"Image"] ||
                 [currentViewClass containsString:@"Scroll"]) {
                 return;
             }
-            
+
             if ([currentView isKindOfClass:[UILabel class]]) {
                 UILabel *label = (UILabel *)currentView;
-                
+
                 // Performance optimization: Quick text validation before hierarchy check
-                if (!label.text || label.text.length < 3 || 
+                if (!label.text || label.text.length < 3 ||
                     ![label.text containsString:@":"] || ![label.text containsString:@"/"]) {
                     return;
                 }
-                
+
                 UIView *v = label.superview;
                 BOOL inImmersiveCardViewContext = NO;
                 NSInteger hierarchyDepth = 0;
-                
+
                 while(v && v != searchView.window && v != searchView && hierarchyDepth < 10) {
                     NSString *className = NSStringFromClass([v class]);
                     if ([className isEqualToString:@"T1TwitterSwift.ImmersiveCardView"] || [className hasSuffix:@".ImmersiveCardView"]) {
@@ -2932,10 +2975,10 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
 
         if (foundCandidate) {
             timestampLabel = foundCandidate;
-            
+
             // Don't set the visibility directly - let the player handle it
             // Just style the label for proper appearance
-            
+
             // Now store it in our map
             [playerToTimestampMap setObject:timestampLabel forKey:activePlayerVC];
             [labelSearchCache setObject:@YES forKey:activePlayerVC];
@@ -2959,14 +3002,14 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
         CGRect currentFrame = timestampLabel.frame;
         CGFloat horizontalPadding = 2.0; // Padding on EACH side
         CGFloat verticalPadding = 12.0; // TOTAL vertical padding (6.0 on each side)
-        
+
         CGRect newFrame = CGRectMake(
-            currentFrame.origin.x - horizontalPadding, 
+            currentFrame.origin.x - horizontalPadding,
             currentFrame.origin.y - (verticalPadding / 2.0f),
             currentFrame.size.width + (horizontalPadding * 2),
                 currentFrame.size.height + verticalPadding
             );
-            
+
         if (newFrame.size.height < 22.0f) {
             CGFloat heightDiff = 22.0f - newFrame.size.height;
             newFrame.size.height = 22.0f;
@@ -2983,13 +3026,13 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
 - (void)immersiveViewController:(id)passedImmersiveViewController showHideNavigationButtons:(_Bool)showButtons {
     // Store the original value for "showButtons"
     BOOL originalShowButtons = showButtons;
-    
+
     // No longer forcing controls to be visible on first load
     // Let Twitter's player handle everything normally
-    
+
     // Always pass the original parameter - no overriding
     %orig(passedImmersiveViewController, originalShowButtons);
-    
+
     T1ImmersiveFullScreenViewController *activePlayerVC = self;
 
     // The rest of the method remains unchanged
@@ -3003,7 +3046,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
         }
         return;
     }
-    
+
     SEL findAndPrepareSelector = NSSelectorFromString(@"BHT_findAndPrepareTimestampLabelForVC:");
     BOOL labelReady = NO;
 
@@ -3021,11 +3064,11 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
 
     if (labelReady) {
         UILabel *timestampLabel = [playerToTimestampMap objectForKey:activePlayerVC];
-        if (timestampLabel) { 
+        if (timestampLabel) {
             // Let the timestamp follow the controls visibility, but ensure it matches
             BOOL isVisible = showButtons;
 
-            
+
             // Only adjust if there's a mismatch
             if (isVisible && timestampLabel.hidden) {
                 // Controls are visible but label is hidden - fix it
@@ -3048,13 +3091,13 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
     T1ImmersiveFullScreenViewController *activePlayerVC = self;
 
     if ([BHTManager restoreVideoTimestamp]) {
-        if (!playerToTimestampMap) { 
+        if (!playerToTimestampMap) {
             playerToTimestampMap = [NSMapTable weakToStrongObjectsMapTable];
         }
-        
+
         // Ensure the label is found and prepared if the view appears.
         [self BHT_findAndPrepareTimestampLabelForVC:activePlayerVC];
-        
+
         // REMOVED: BHT_FirstLoadDone and related logic for forced first-load visibility.
         // BOOL isFirstLoad = ![objc_getAssociatedObject(activePlayerVC, "BHT_FirstLoadDone") boolValue];
         // if (isFirstLoad) {
@@ -3085,7 +3128,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
             // Determine current intended visibility of controls.
             BOOL controlsShouldBeVisible = NO;
             UIView *playerControls = nil;
-            if ([activePlayerVC respondsToSelector:@selector(playerControlsView)]) { 
+            if ([activePlayerVC respondsToSelector:@selector(playerControlsView)]) {
                 playerControls = [activePlayerVC valueForKey:@"playerControlsView"];
                 if (playerControls && [playerControls respondsToSelector:@selector(alpha)]) {
                     controlsShouldBeVisible = playerControls.alpha > 0.0f;
@@ -3093,7 +3136,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
             }
 
             // Directly set the label's visibility based on controls
-            timestampLabel.hidden = !controlsShouldBeVisible; 
+            timestampLabel.hidden = !controlsShouldBeVisible;
         }
     }
 }
@@ -3122,7 +3165,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
 
         BOOL isDashAvatar = [selfClassName isEqualToString:@"TwitterDash.DashAvatarImageView"];
         BOOL isDashDrawerAvatar = [selfClassName isEqualToString:@"TwitterDash.DashDrawerAvatarImageView"];
-        
+
         BOOL inDashHostingContext = isViewInsideDashHostingController(self);
 
         if (isDashDrawerAvatar) {
@@ -3142,7 +3185,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
         %orig(3); // Call original with forced style 3
 
         // Force slightly rounded square on the main TFNAvatarImageView layer
-        self.layer.cornerRadius = activeCornerRadius; 
+        self.layer.cornerRadius = activeCornerRadius;
         self.layer.masksToBounds = YES; // Ensure the main view clips
 
         // Find TIPImageViewObserver and force it to be slightly rounded
@@ -3201,19 +3244,19 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
         if (cornerRadius > minSide / 2.0f) {
             cornerRadius = minSide / 2.0f; // Cap radius to avoid weird shapes
         }
-        
+
         UIGraphicsBeginImageContextWithOptions(targetDimensions, NO, self.scale); // Use self.scale for retina, NO for opaque if image has alpha
         if (!UIGraphicsGetCurrentContext()) {
             UIGraphicsEndImageContext(); // Defensive call
             return self;
         }
-        
+
         [[UIBezierPath bezierPathWithRoundedRect:imageRect cornerRadius:cornerRadius] addClip];
         [self drawInRect:imageRect];
-        
+
         UIImage *roundedImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
-        
+
         if (roundedImage) {
             return roundedImage;
         } else {
@@ -3244,7 +3287,7 @@ static BOOL isViewInsideDashHostingController(UIView *view) {
 static void PlayRefreshSound(int soundType) {
     static SystemSoundID sounds[2] = {0, 0};
     static BOOL soundsInitialized[2] = {NO, NO};
-    
+
     // Ensure the sounds are only initialized once per type
     if (!soundsInitialized[soundType]) {
         NSString *soundFile = nil;
@@ -3255,7 +3298,7 @@ static void PlayRefreshSound(int soundType) {
             // Sound when refresh completes
             soundFile = @"pop.aac";
         }
-        
+
         if (soundFile) {
             NSURL *soundURL = [[BHTBundle sharedBundle] pathForFile:soundFile];
             if (soundURL) {
@@ -3270,7 +3313,7 @@ static void PlayRefreshSound(int soundType) {
             }
         }
     }
-    
+
     // Play the sound if it was successfully initialized
     if (soundsInitialized[soundType]) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -3294,19 +3337,19 @@ static char kManualRefreshInProgressKey;
 - (void)setLoading:(_Bool)loading {
     static BOOL previousLoading = NO;
     static BOOL manualRefresh = NO;
-    
+
     if (!loading && previousLoading && manualRefresh) {
         PlayRefreshSound(1);
         manualRefresh = NO;
     }
-    
+
     if (!loading && previousLoading) {
         manualRefresh = NO;
     } else if (loading && !previousLoading) {
         // This is likely a manual refresh
         manualRefresh = YES;
     }
-    
+
     previousLoading = loading;
     %orig;
 }
@@ -3316,23 +3359,23 @@ static char kManualRefreshInProgressKey;
     // Get previous loading state
     NSNumber *previousLoadingState = objc_getAssociatedObject(self, &kPreviousLoadingStateKey);
     BOOL wasLoading = previousLoadingState ? [previousLoadingState boolValue] : NO;
-    
+
     // Check if we're in a manual refresh
     NSNumber *manualRefresh = objc_getAssociatedObject(self, &kManualRefreshInProgressKey);
     BOOL isManualRefresh = manualRefresh ? [manualRefresh boolValue] : NO;
-    
+
     %orig;
-    
+
     // Store the new state AFTER calling original
     objc_setAssociatedObject(self, &kPreviousLoadingStateKey, @(loading), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    
+
     // If loading went from YES to NO AND we're in a manual refresh, play pop sound
     if (wasLoading && !loading && isManualRefresh) {
         PlayRefreshSound(1);
         // Clear the manual refresh flag
         objc_setAssociatedObject(self, &kManualRefreshInProgressKey, @NO, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-    
+
     if (!wasLoading && loading) {
         NSLog(@"[BHTwitter] Loading changed from NO to YES (completion) - refresh started");
     }
@@ -3341,10 +3384,10 @@ static char kManualRefreshInProgressKey;
 // Detect manual pull-to-refresh and play pull sound
 - (void)_setStatus:(unsigned long long)status fromScrolling:(_Bool)fromScrolling {
     %orig;
-    
+
     if (status == 1 && fromScrolling) {
         PlayRefreshSound(0);
-        
+
         // Mark that we're in a manual refresh
         objc_setAssociatedObject(self, &kManualRefreshInProgressKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         // Mark that loading started (even though setLoading: might not be called with loading=1)
@@ -3357,12 +3400,12 @@ static char kManualRefreshInProgressKey;
 %ctor {
     // Import AudioServices framework
     dlopen("/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox", RTLD_LAZY);
-    
+
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     NSOperationQueue *mainQueue = [NSOperationQueue mainQueue];
     // Someone needs to hold reference the to Notification
     _PasteboardChangeObserver = [center addObserverForName:UIPasteboardChangedNotification object:nil queue:mainQueue usingBlock:^(NSNotification * _Nonnull note){
-        
+
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             trackingParams = @{
@@ -3370,18 +3413,18 @@ static char kManualRefreshInProgressKey;
                 @"x.com" : @[@"s", @"t"],
             };
         });
-        
+
         if ([BHTManager stripTrackingParams]) {
             if (UIPasteboard.generalPasteboard.hasURLs) {
                 NSURL *pasteboardURL = UIPasteboard.generalPasteboard.URL;
                 NSArray<NSString*>* params = trackingParams[pasteboardURL.host];
-                
+
                 if ([pasteboardURL.absoluteString isEqualToString:_lastCopiedURL] == NO && params != nil && pasteboardURL.query != nil) {
                     // to prevent endless copy loop
                     _lastCopiedURL = pasteboardURL.absoluteString;
                     NSURLComponents *cleanedURL = [NSURLComponents componentsWithURL:pasteboardURL resolvingAgainstBaseURL:NO];
                     NSMutableArray<NSURLQueryItem*> *safeParams = [NSMutableArray arrayWithCapacity:0];
-                    
+
                     for (NSURLQueryItem *item in cleanedURL.queryItems) {
                         if ([params containsObject:item.name] == NO) {
                             [safeParams addObject:item];
@@ -3398,7 +3441,7 @@ static char kManualRefreshInProgressKey;
             }
         }
     }];
-    
+
     // Initialize global Class pointers here when the tweak loads
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -3409,21 +3452,21 @@ static char kManualRefreshInProgressKey;
         if (!gTombstoneCellClass) gTombstoneCellClass = NSClassFromString(@"T1TwitterSwift_ConversationTombstoneCell");
 
         gExploreHeroCellClass = NSClassFromString(@"T1ExploreEventSummaryHeroTableViewCell");
-        
+
         // Initialize T1ProfileHeaderViewController class pointer
         gT1ProfileHeaderViewControllerClass = NSClassFromString(@"T1ProfileHeaderViewController");
-        
+
         // Initialize Dash specific class pointers
         gDashAvatarImageViewClass = NSClassFromString(@"TwitterDash.DashAvatarImageView");
         gDashDrawerAvatarImageViewClass = NSClassFromString(@"TwitterDash.DashDrawerAvatarImageView");
-        
+
         // The full name for the hosting controller is very long and specific.
         gDashHostingControllerClass = NSClassFromString(@"_TtGC7SwiftUI19UIHostingControllerGV10TFNUISwift22HostingEnvironmentViewV11TwitterDash18DashNavigationView__");
-        
+
         // Initialize the concurrent queue for source label data access
         sourceLabelDataQueue = dispatch_queue_create("com.bandarhelal.bhtwitter.sourceLabelQueue", DISPATCH_QUEUE_CONCURRENT);
     });
-    
+
     // Initialize dictionaries for Tweet Source Labels restoration
     dispatch_barrier_async(sourceLabelDataQueue, ^{
         if (!tweetSources)      tweetSources      = [NSMutableDictionary dictionary];
@@ -3437,15 +3480,15 @@ static char kManualRefreshInProgressKey;
     // These dictionaries are UI-related and should only be accessed on the main thread
     if (!viewToTweetID)     viewToTweetID     = [NSMutableDictionary dictionary];
     if (!viewInstances)     viewInstances     = [NSMutableDictionary dictionary];
-    
+
     // Load cached cookies at initialization
     [TweetSourceHelper loadCachedCookies];
-    
+
     %init;
     // Add observers for both window and theme changes
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification 
-                                                    object:nil 
-                                                     queue:[NSOperationQueue mainQueue] 
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIWindowDidBecomeVisibleNotification
+                                                    object:nil
+                                                     queue:[NSOperationQueue mainQueue]
                                                 usingBlock:^(NSNotification * _Nonnull note) {
         UIWindow *window = note.object;
         if (window && [[NSUserDefaults standardUserDefaults] objectForKey:@"bh_color_theme_selectedColor"]) {
@@ -3465,7 +3508,7 @@ static char kManualRefreshInProgressKey;
     if (![BHTManager dmAvatars]) {
         return %orig;
     }
-    
+
     if (self.isOutgoingMessage) {
         return NO; // Don't show avatar for your own messages
     }
@@ -3477,7 +3520,7 @@ static char kManualRefreshInProgressKey;
     if (![BHTManager dmAvatars]) {
         return %orig;
     }
-    
+
     // Always return YES so that space is allocated for the avatar,
     // allowing shouldShowAvatarImage to control actual visibility.
     return YES;
@@ -3492,21 +3535,21 @@ static char kManualRefreshInProgressKey;
     UIImageView *imageView = [self valueForKey:@"imageView"];
     UILabel *titleLabel = [self valueForKey:@"titleLabel"];
     if (!imageView) return;
-    
+
     BOOL isSelected = [[self valueForKey:@"selected"] boolValue];
-    
+
     if ([BHTManager classicTabBarEnabled]) {
         // Apply custom theming
         UIColor *targetColor = isSelected ? BHTCurrentAccentColor() : [UIColor secondaryLabelColor];
-        
+
         // Ensure image is in template mode for proper tinting
         if (imageView.image && imageView.image.renderingMode != UIImageRenderingModeAlwaysTemplate) {
             imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         }
-        
+
         // Apply tint color to icon
         imageView.tintColor = targetColor;
-        
+
         // Apply color to label
         if (titleLabel) {
             titleLabel.textColor = targetColor;
@@ -3514,12 +3557,12 @@ static char kManualRefreshInProgressKey;
     } else {
         // Revert to default Twitter appearance
         imageView.tintColor = nil;
-        
+
         // Reset image rendering mode to automatic
         if (imageView.image) {
             imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAutomatic];
         }
-        
+
         // Reset label color to default
         if (titleLabel) {
             titleLabel.textColor = nil;
@@ -3536,7 +3579,7 @@ static char kManualRefreshInProgressKey;
 
 - (void)_t1_updateTitleLabel {
     %orig;
-    
+
     // Ensure titleLabel is not hidden when restore tab labels is enabled
     if ([BHTManager restoreTabLabels]) {
         UILabel *titleLabel = [self valueForKey:@"titleLabel"];
@@ -3548,14 +3591,14 @@ static char kManualRefreshInProgressKey;
 
 - (void)_t1_updateImageViewAnimated:(_Bool)animated {
     %orig(animated);
-    
+
     // Always apply theming logic (handles both enabled and disabled cases)
     [self performSelector:@selector(bh_applyCurrentThemeToIcon)];
 }
 
 - (void)setSelected:(_Bool)selected {
     %orig(selected);
-    
+
     // Always apply theming logic (handles both enabled and disabled cases)
     [self performSelector:@selector(bh_applyCurrentThemeToIcon)];
 }
@@ -3569,7 +3612,7 @@ static char kManualRefreshInProgressKey;
 
 - (void)_t1_updateTabBarAppearance {
     %orig;
-    
+
     // Apply our custom theming after Twitter updates the tab bar
     if ([BHTManager classicTabBarEnabled]) {
         NSArray *tabViews = [self valueForKey:@"tabViews"];
@@ -3587,12 +3630,12 @@ static char kManualRefreshInProgressKey;
 static void BHT_UpdateAllTabBarIcons(void) {
     // Use Twitter's notification system to refresh tab bars
     [[NSNotificationCenter defaultCenter] postNotificationName:@"T1TabBarAppearanceDidChangeNotification" object:nil];
-    
+
     // Also trigger a direct refresh on visible tab bar controllers
     for (UIWindow *window in UIApplication.sharedApplication.windows) {
         if (window.isKeyWindow && window.rootViewController) {
             UIViewController *rootVC = window.rootViewController;
-            
+
             if ([rootVC isKindOfClass:NSClassFromString(@"T1TabBarViewController")]) {
                 // Use Twitter's internal tab bar refresh method if available
                 if ([rootVC respondsToSelector:@selector(_t1_updateTabBarAppearance)]) {
@@ -3618,36 +3661,36 @@ static void BHT_applyThemeToWindow(UIWindow *window) {
 static void BHT_ensureThemingEngineSynchronized(BOOL forceSynchronize) {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     id selectedColorObj = [defaults objectForKey:@"bh_color_theme_selectedColor"];
-    
+
     if (!selectedColorObj) return;
-    
+
     NSInteger selectedColor = [selectedColorObj integerValue];
     id twitterColorObj = [defaults objectForKey:@"T1ColorSettingsPrimaryColorOptionKey"];
-    
+
     // Check if Twitter's color setting matches our desired color
     if (forceSynchronize || !twitterColorObj || ![twitterColorObj isEqual:selectedColorObj]) {
         // Mark that we're performing our own theme change to avoid recursion
         BHT_isInThemeChangeOperation = YES;
-        
+
         // Apply our theme color through Twitter's system
         TAEColorSettings *taeSettings = [%c(TAEColorSettings) sharedSettings];
         if ([taeSettings respondsToSelector:@selector(setPrimaryColorOption:)]) {
             [taeSettings setPrimaryColorOption:selectedColor];
         }
-        
+
         // Set Twitter's user defaults key to match our selection
         [defaults setObject:selectedColorObj forKey:@"T1ColorSettingsPrimaryColorOptionKey"];
-        
+
         // Call Twitter's internal theme application methods
         if ([%c(T1ColorSettings) respondsToSelector:@selector(_t1_applyPrimaryColorOption)]) {
             [%c(T1ColorSettings) _t1_applyPrimaryColorOption];
         }
-        
+
         // Refresh only tab bar icons when classic theming is enabled
         if ([BHTManager classicTabBarEnabled]) {
             BHT_UpdateAllTabBarIcons();
         }
-        
+
         // Reset our operation flag
         BHT_isInThemeChangeOperation = NO;
     }
@@ -3664,7 +3707,7 @@ static void BHT_forceRefreshAllWindowAppearances(void) {
     if ([BHTManager classicTabBarEnabled]) {
         BHT_UpdateAllTabBarIcons();
     }
-    
+
     // Trigger system-wide appearance updates
     for (UIWindow *window in [UIApplication sharedApplication].windows) {
         if (window.isKeyWindow && window.rootViewController) {
@@ -3680,45 +3723,45 @@ static BOOL isTimestampText(NSString *text) {
     if (!text || text.length == 0) {
         return NO;
     }
-    
+
     // Check for common timestamp patterns like "0:01/0:05" or "00:20/01:30"
     NSRange colonRange = [text rangeOfString:@":"];
     NSRange slashRange = [text rangeOfString:@"/"];
-    
+
     // Must have both colon and slash
     if (colonRange.location == NSNotFound || slashRange.location == NSNotFound) {
         return NO;
     }
-    
+
     // Slash should come after colon in a timestamp (e.g., "0:01/0:05")
     if (slashRange.location < colonRange.location) {
         return NO;
     }
-    
+
     // Should have another colon after the slash
     NSRange secondColonRange = [text rangeOfString:@":" options:0 range:NSMakeRange(slashRange.location, text.length - slashRange.location)];
     if (secondColonRange.location == NSNotFound) {
         return NO;
     }
-    
+
     return YES;
 }
 
 // Helper to find player controls in view hierarchy
 static UIView *findPlayerControlsInHierarchy(UIView *startView) {
     if (!startView) return nil;
-    
+
     __block UIView *playerControls = nil;
     BH_EnumerateSubviewsRecursively(startView, ^(UIView *view) {
         if (playerControls) return;
-        
+
         NSString *className = NSStringFromClass([view class]);
-        if ([className containsString:@"PlayerControlsView"] || 
+        if ([className containsString:@"PlayerControlsView"] ||
             [className containsString:@"VideoControls"]) {
             playerControls = view;
         }
     });
-    
+
     return playerControls;
 }
 
@@ -3726,68 +3769,68 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
 
 - (void)setText:(NSString *)text {
     %orig(text);
-    
+
     // Skip processing if feature is disabled
     if (![BHTManager restoreVideoTimestamp]) {
         return;
     }
-    
+
     // Skip if text doesn't match timestamp pattern
     if (!isTimestampText(self.text)) {
         return;
     }
-    
+
     // Check if already styled
     if ([objc_getAssociatedObject(self, "BHT_StyledTimestamp") boolValue]) {
         return;
     }
-    
+
     // Find if we're in the correct view context
     UIView *parentView = self.superview;
     BOOL isInImmersiveContext = NO;
-    
+
     while (parentView) {
         NSString *className = NSStringFromClass([parentView class]);
-        if ([className isEqualToString:@"T1TwitterSwift.ImmersiveCardView"] || 
+        if ([className isEqualToString:@"T1TwitterSwift.ImmersiveCardView"] ||
             [className hasSuffix:@".ImmersiveCardView"]) {
             isInImmersiveContext = YES;
             break;
         }
         parentView = parentView.superview;
     }
-    
+
     if (isInImmersiveContext) {
-        
+
         // Apply styling - ONLY styling, not visibility
         self.font = [UIFont systemFontOfSize:14.0];
         self.textColor = [UIColor whiteColor];
         self.textAlignment = NSTextAlignmentCenter;
         self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.5];
-        
+
         // Calculate size and apply padding
         [self sizeToFit];
         CGRect frame = self.frame;
         CGFloat horizontalPadding = 4.0;
         CGFloat verticalPadding = 12.0;
-        
+
         frame = CGRectMake(
             frame.origin.x - horizontalPadding / 2.0f,
             frame.origin.y - verticalPadding / 2.0f,
             frame.size.width + horizontalPadding,
             frame.size.height + verticalPadding
         );
-        
+
         // Ensure minimum height
         if (frame.size.height < 22.0f) {
             CGFloat diff = 22.0f - frame.size.height;
             frame.size.height = 22.0f;
             frame.origin.y -= diff / 2.0f;
         }
-        
+
         self.frame = frame;
         self.layer.cornerRadius = frame.size.height / 2.0f;
         self.layer.masksToBounds = YES;
-        
+
         // Mark as styled and store reference
         objc_setAssociatedObject(self, "BHT_StyledTimestamp", @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         // gVideoTimestampLabel = self; // REMOVED
@@ -3807,7 +3850,7 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
             // }
         // }
     // }
-    
+
     // Default behavior
     %orig(hidden);
 }
@@ -3825,7 +3868,7 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
             // }
         // }
     // }
-    
+
     // Default behavior
     %orig(alpha);
 }
@@ -3850,7 +3893,7 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
 
 - (void)updateFooterTextView {
     %orig;
-    
+
     // Add source label to footer text view
     if ([BHTManager RestoreTweetLabels] && self.viewModel) {
         @try {
@@ -3861,7 +3904,7 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
             } else if ([self.viewModel respondsToSelector:@selector(status)]) {
                 tweetObject = [self.viewModel performSelector:@selector(status)];
             }
-            
+
             if (tweetObject) {
                 // Get tweet ID
                 NSString *tweetIDStr = nil;
@@ -3871,7 +3914,7 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
                         tweetIDStr = [statusIDVal stringValue];
                     }
                 } @catch (NSException *e) {}
-                
+
                 if (!tweetIDStr || tweetIDStr.length == 0) {
                     @try {
                         tweetIDStr = [tweetObject valueForKey:@"rest_id"];
@@ -3884,17 +3927,17 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
                         }
                     } @catch (NSException *e) {}
                 }
-                
+
                 if (tweetIDStr && tweetIDStr.length > 0) {
                     // Initialize source tracking if needed
                     if (!tweetSources) tweetSources = [NSMutableDictionary dictionary];
-                    
+
                     // Fetch source if not already available
                     if (!tweetSources[tweetIDStr]) {
                         tweetSources[tweetIDStr] = @""; // Placeholder
                         [TweetSourceHelper fetchSourceForTweetID:tweetIDStr];
                     }
-                    
+
                     // Legacy source code removed
                 }
             }
@@ -3921,17 +3964,17 @@ static UIView *findPlayerControlsInHierarchy(UIView *startView) {
 // Helper function to check if we're in the T1ConversationContainerViewController hierarchy
 static BOOL BHT_isInConversationContainerHierarchy(UIViewController *viewController) {
     if (!viewController) return NO;
-    
+
     // Check all view controllers up the hierarchy
     UIViewController *currentVC = viewController;
     while (currentVC) {
         NSString *className = NSStringFromClass([currentVC class]);
-        
+
         // Check for T1ConversationContainerViewController
         if ([className isEqualToString:@"T1ConversationContainerViewController"]) {
             return YES;
         }
-        
+
         // Move up the hierarchy
         if (currentVC.parentViewController) {
             currentVC = currentVC.parentViewController;
@@ -3943,7 +3986,7 @@ static BOOL BHT_isInConversationContainerHierarchy(UIViewController *viewControl
             break;
         }
     }
-    
+
     return NO;
 }
 
@@ -3951,10 +3994,10 @@ static BOOL BHT_isInConversationContainerHierarchy(UIViewController *viewControl
 %hook T1URTViewController
 
 - (void)setSections:(NSArray *)sections {
-    
+
     // Only filter if we're in the T1ConversationContainerViewController hierarchy
     BOOL inConversationHierarchy = BHT_isInConversationContainerHierarchy((UIViewController *)self);
-    
+
     if (inConversationHierarchy) {
         // Remove entry 1 (index 1) from sections array
         if (sections.count > 1) {
@@ -3963,7 +4006,7 @@ static BOOL BHT_isInConversationContainerHierarchy(UIViewController *viewControl
             sections = [filteredSections copy];
         }
     }
-    
+
     %orig(sections);
 }
 

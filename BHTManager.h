@@ -46,6 +46,7 @@
 + (BOOL)alwaysOpenSafari;
 + (BOOL)hideWhoToFollow;
 + (BOOL)hideTopicsToFollow;
++ (BOOL)hideBlueVerified;
 + (BOOL)hideViewCount;
 + (BOOL)hidePremiumOffer;
 + (BOOL)hideTrendVideos;
