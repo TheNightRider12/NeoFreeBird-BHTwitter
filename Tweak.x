@@ -1269,6 +1269,10 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([key isEqualToString:@"ios_tab_bar_default_show_profile"]) {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"ios_tab_bar_default_show_profile"];
     }
+
+    if ([key isEqualToString:@"ios_tab_bar_default_show_communities"]) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"ios_tab_bar_default_show_communities"];
+    }
     
     return %orig;
 }

@@ -293,6 +293,8 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
     [[NSUserDefaults standardUserDefaults] setBool:grokEnabled forKey:@"ios_tab_bar_default_show_grok"];
     BOOL profileEnabled = [self.enabledPageIDs containsObject:@"profile"];
     [[NSUserDefaults standardUserDefaults] setBool:profileEnabled forKey:@"ios_tab_bar_default_show_profile"];
+    BOOL communitiesEnabled = [self.enabledPageIDs containsObject:@"communities"];
+    [[NSUserDefaults standardUserDefaults] setBool: communitiesEnabled forKey:@"ios_tab_bar_default_show_communities"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
     self.hasChanges = NO;
