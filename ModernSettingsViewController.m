@@ -602,8 +602,8 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
 - (void)setupDeveloperCells {
     self.developerCells = @[
         @{ @"title": @"aridan", @"username": @"actuallyaridan", @"avatarURL": @"https://unavatar.io/x/actuallyaridan", @"userID": @"1351218086649720837" },
-        @{ @"title": @"timi2506", @"username": @"timi2506", @"avatarURL": @"https://unavatar.io/github/timi2506", @"userID": @"1671731225424195584" },
-        @{ @"title": @"nyathea", @"username": @"nyaathea", @"avatarURL": @"https://unavatar.io/github/nyathea", @"userID": @"1541742676009226241" }
+        @{ @"title": @"timi2506", @"username": @"timi2506", @"avatarURL": @"https://unavatar.io/github/timi2506", @"userID": @"1684856685486063616" },
+        @{ @"title": @"thea", @"username": @"theameoww", @"avatarURL": @"https://unavatar.io/github/nyathea", @"userID": @"1479626241175175173" }
     ];
 
     self.specialThanksCells = @[
