@@ -1273,6 +1273,14 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     if ([key isEqualToString:@"ios_tab_bar_default_show_communities"]) {
     return [[NSUserDefaults standardUserDefaults] boolForKey:@"ios_tab_bar_default_show_communities"];
     }
+
+    if ([key isEqualToString:@"ios_in_app_article_webview_enabled"]) {
+        NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+        if ([d objectForKey:key] != nil) {
+            return [d boolForKey:key];   // respect the Settings toggle
+        }
+        return YES;                       // default off when unset
+    }
     
     return %orig;
 }
@@ -1305,6 +1313,7 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
     return %orig;
 }
 %end
+
 
 %hook THFHomeTimelineContainerViewController
 - (void)_t1_showPremiumUpsellIfNeeded {

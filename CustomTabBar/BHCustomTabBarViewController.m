@@ -232,7 +232,7 @@ static UIFont *TwitterChirpFont(TwitterFontStyle style) {
             [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_PROFILE" pageID:@"profile"],
             [[BHCustomTabBarItem alloc] initWithTitle:@"CUSTOM_TAB_BAR_VIDEO" pageID:@"media"]
         ] mutableCopy];
-        self.enabledPageIDs = [NSMutableSet setWithArray:@[@"home", @"guide", @"grok", @"media", @"ntab", @"profile", @"messages"]];
+        self.enabledPageIDs = [NSMutableSet setWithArray:@[@"home", @"guide", @"ntab", @"messages"]];
     }
     
     // Store initial state for comparison later
