@@ -134,6 +134,167 @@ static BOOL BHT_isTwitterDarkThemeActive() {
     return NO;
 }
 
+// ===== Padlock helpers (new) =====
+
+static const NSInteger BHTPadlockOverlayTag = 909;
+
+static NSArray<UIWindow *> *BHT_allActiveWindows(void) {
+    NSMutableArray<UIWindow *> *result = [NSMutableArray array];
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive &&
+                [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *ws = (UIWindowScene *)scene;
+                for (UIWindow *w in ws.windows) {
+                    if (!w.hidden) [result addObject:w];
+                }
+            }
+        }
+    }
+    if (result.count == 0) {
+        for (UIWindow *w in UIApplication.sharedApplication.windows) {
+            if (!w.hidden) [result addObject:w];
+        }
+    }
+    return result;
+}
+
+static UIWindow *BHT_activeKeyWindow(void) {
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (scene.activationState == UISceneActivationStateForegroundActive &&
+                [scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *ws = (UIWindowScene *)scene;
+                for (UIWindow *w in ws.windows) {
+                    if (w.isKeyWindow) return w;
+                }
+                for (UIWindow *w in ws.windows) {
+                    if (!w.hidden) return w;
+                }
+            }
+        }
+    }
+    for (UIWindow *w in UIApplication.sharedApplication.windows) {
+        if (w.isKeyWindow) return w;
+    }
+    for (UIWindow *w in UIApplication.sharedApplication.windows) {
+        if (!w.hidden) return w;
+    }
+    return nil;
+}
+
+static UIViewController *BHT_topViewController(UIViewController *root) {
+    if (!root) return nil;
+    UIViewController *vc = root;
+    while (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+    }
+    if ([vc isKindOfClass:[UINavigationController class]]) {
+        vc = ((UINavigationController *)vc).visibleViewController ?: vc;
+    }
+    if ([vc isKindOfClass:[UITabBarController class]]) {
+        UIViewController *sel = ((UITabBarController *)vc).selectedViewController;
+        if (sel) vc = sel;
+    }
+    return vc;
+}
+
+static void BHT_showPadlockOverlay(void) {
+    UIWindow *window = BHT_activeKeyWindow();
+    if (!window) return;
+
+    for (UIWindow *w in BHT_allActiveWindows()) {
+        for (UIView *v in w.subviews) {
+            if (v.tag == BHTPadlockOverlayTag) [v removeFromSuperview];
+        }
+    }
+
+    UIView *overlay = [[UIView alloc] initWithFrame:window.bounds];
+    overlay.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    overlay.backgroundColor = UIColor.systemBackgroundColor;
+    overlay.userInteractionEnabled = YES;
+    overlay.tag = BHTPadlockOverlayTag;
+
+    UIImageView *icon = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"lock.fill"]];
+    icon.translatesAutoresizingMaskIntoConstraints = NO;
+    icon.tintColor = UIColor.labelColor;
+
+    UILabel *label = [[UILabel alloc] init];
+    label.translatesAutoresizingMaskIntoConstraints = NO;
+    label.text = @"Locked";
+    label.textColor = UIColor.labelColor;
+    label.font = [UIFont systemFontOfSize:22 weight:UIFontWeightSemibold];
+    label.textAlignment = NSTextAlignmentCenter;
+
+    [overlay addSubview:icon];
+    [overlay addSubview:label];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [icon.centerXAnchor constraintEqualToAnchor:overlay.centerXAnchor],
+        [icon.centerYAnchor constraintEqualToAnchor:overlay.centerYAnchor constant:-20],
+        [label.centerXAnchor constraintEqualToAnchor:overlay.centerXAnchor],
+        [label.topAnchor constraintEqualToAnchor:icon.bottomAnchor constant:8]
+    ]];
+
+    [window addSubview:overlay];
+}
+
+static void BHT_removePadlockOverlay(void) {
+    for (UIWindow *w in BHT_allActiveWindows()) {
+        NSMutableArray<UIView *> *toRemove = [NSMutableArray array];
+        for (UIView *v in w.subviews) {
+            if (v.tag == BHTPadlockOverlayTag) [toRemove addObject:v];
+        }
+        for (UIView *v in toRemove) [v removeFromSuperview];
+    }
+}
+
+static BOOL BHT_isAuthenticated(void) {
+    NSDictionary *keychainData = [[keychain shared] getData];
+    if (!keychainData) return NO;
+    id val = keychainData[@"isAuthenticated"];
+    return [val respondsToSelector:@selector(boolValue)] ? [val boolValue] : NO;
+}
+
+static void BHT_setAuthenticated(BOOL yes) {
+    [[keychain shared] saveDictionary:@{@"isAuthenticated": @(yes)}];
+}
+
+static void BHT_presentAuthIfNeeded(void) {
+    if (BHT_isAuthenticated()) {
+        BHT_removePadlockOverlay();
+        return;
+    }
+
+    UIWindow *window = BHT_activeKeyWindow();
+    if (!window) {
+        BHT_showPadlockOverlay();
+        return;
+    }
+
+    UIViewController *root = window.rootViewController;
+    if (!root) {
+        window.rootViewController = [UIViewController new];
+        root = window.rootViewController;
+    }
+    UIViewController *host = BHT_topViewController(root);
+
+    AuthViewController *auth = [[AuthViewController alloc] init];
+    auth.modalPresentationStyle = UIModalPresentationFullScreen;
+    if ([auth respondsToSelector:@selector(setModalInPresentation:)]) {
+        auth.modalInPresentation = YES;
+    }
+
+    if (host.presentedViewController == nil) {
+        [host presentViewController:auth animated:NO completion:nil];
+    } else {
+        [host dismissViewControllerAnimated:NO completion:^{
+            UIViewController *newTop = BHT_topViewController(root);
+            [newTop presentViewController:auth animated:NO completion:nil];
+        }];
+    }
+}
+
 static UIFont * _Nullable TAEStandardFontGroupReplacement(UIFont *self, SEL _cmd, CGFloat arg1, CGFloat arg2) {
     BH_BaseImp orig  = originalFontsIMP[NSStringFromSelector(_cmd)].pointerValue;
     NSUInteger nArgs = [[self class] instanceMethodSignatureForSelector:_cmd].numberOfArguments;
@@ -350,67 +511,97 @@ static void batchSwizzlingOnClass(Class cls, NSArray<NSString*>*origSelectors, I
 }
 
 - (void)applicationDidBecomeActive:(id)arg1 {
-    NSLog(@"[BHTwitter] applicationDidBecomeActive - START");
     %orig;
-    NSLog(@"[BHTwitter] applicationDidBecomeActive - orig called");
 
-    // Re-apply theme on becoming active - simpler with our new management system
+    // Re-apply theming and other existing logic …
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"bh_color_theme_selectedColor"]) {
-        NSLog(@"[BHTwitter] applicationDidBecomeActive - applying theme");
         BHT_ensureThemingEngineSynchronized(YES);
     }
-
-    // Initialize cookies if tweet labels are enabled
     if ([BHTManager RestoreTweetLabels]) {
-        NSLog(@"[BHTwitter] applicationDidBecomeActive - initializing cookies");
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSLog(@"[BHTwitter] applicationDidBecomeActive - calling initializeCookiesWithRetry");
             [TweetSourceHelper initializeCookiesWithRetry];
         });
     }
-    NSLog(@"[BHTwitter] applicationDidBecomeActive - END");
 
     if ([BHTManager Padlock]) {
-        NSDictionary *keychainData = [[keychain shared] getData];
-        if (keychainData != nil) {
-            id isAuthenticated = [keychainData valueForKey:@"isAuthenticated"];
-            if (isAuthenticated == nil || [isAuthenticated isEqual:@NO]) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    AuthViewController *auth = [[AuthViewController alloc] init];
-                    [auth setModalPresentationStyle:UIModalPresentationFullScreen];
-                    [self.window.rootViewController presentViewController:auth animated:true completion:nil];
-                });
-            }
+        if (BHT_isAuthenticated()) {
+            BHT_removePadlockOverlay();
+        } else {
+            BHT_showPadlockOverlay();
+            dispatch_async(dispatch_get_main_queue(), ^{
+                BHT_presentAuthIfNeeded();
+            });
         }
-    }
-}
 
-- (void)applicationWillTerminate:(id)arg1 {
-    %orig;
-    if ([BHTManager Padlock]) {
-        [[keychain shared] saveDictionary:@{@"isAuthenticated": @NO}];
+        // Safety recheck in case Face ID completes very quickly
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+            if (BHT_isAuthenticated()) {
+                BHT_removePadlockOverlay();
+            }
+        });
+    } else {
+        BHT_removePadlockOverlay();
     }
 }
 
 - (void)applicationWillResignActive:(id)arg1 {
     %orig;
 
-    // Clean up source label timers to prevent crashes
     if ([BHTManager RestoreTweetLabels]) {
         [TweetSourceHelper cleanupTimersForBackground];
     }
 
     if ([BHTManager Padlock]) {
-        UIImageView *image = [[UIImageView alloc] initWithFrame:self.window.bounds];
-        [image setTag:909];
-        [image setBackgroundColor:UIColor.systemBackgroundColor];
-        [image setContentMode:UIViewContentModeCenter];
-        [self.window addSubview:image];
+        // Cover UI immediately
+        BHT_showPadlockOverlay();
+        // Mark unauthenticated so a reopen from background will prompt again
+        BHT_setAuthenticated(NO);
     }
+
     if ([BHTManager FLEX]) {
         [[%c(FLEXManager) sharedManager] showExplorer];
     }
 }
+
+- (void)applicationDidEnterBackground:(id)arg1 {
+    %orig;
+
+    if ([BHTManager Padlock]) {
+        // Redundant, ensures state is locked while backgrounded
+        BHT_setAuthenticated(NO);
+        BHT_showPadlockOverlay();
+    }
+}
+
+- (void)applicationWillEnterForeground:(id)arg1 {
+    %orig;
+
+    if ([BHTManager Padlock]) {
+        // Keep UI covered during transition
+        BHT_showPadlockOverlay();
+    }
+}
+
+- (void)applicationWillTerminate:(id)arg1 {
+    %orig;
+    if ([BHTManager Padlock]) {
+        BHT_setAuthenticated(NO);
+        BHT_removePadlockOverlay();
+    }
+}
+
+%end
+
+%hook AuthViewController
+
+- (void)viewDidDisappear:(BOOL)animated {
+    %orig;
+    if (BHT_isAuthenticated()) {
+        BHT_removePadlockOverlay();
+    }
+}
+
 %end
 
 // MARK: prevent tab bar fade

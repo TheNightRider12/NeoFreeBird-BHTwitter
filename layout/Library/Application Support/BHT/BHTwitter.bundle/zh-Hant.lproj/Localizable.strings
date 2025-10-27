@@ -375,3 +375,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "試用不穩定的新功能。";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "這裡暫時沒有內容。";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "改進的應用程式內瀏覽器（測試版）";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "使用 Twitter 的新應用程式內瀏覽器來開啟連結。";
+"CUSTOM_TAB_BAR_PROFILE" = "個人資料";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "隱藏 Blue 驗證徽章";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "在推文中隱藏付費驗證徽章。這不包含品牌或政府帳號。";

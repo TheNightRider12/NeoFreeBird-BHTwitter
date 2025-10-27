@@ -42,6 +42,9 @@
 "PADLOCK_OPTION_TITLE" = "Lås Twitter";
 "PADLOCK_OPTION_DETAIL_TITLE" = "Kräv Face ID eller lösenkod för att öppna Twitter.";
 
+"NEW_INAPP_WEB_OPTION_TITLE" = "Förbättrad inbyggd webbläsare (beta)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Använd Twitters nya inbyggda webbläsare för att öppna länkar.";
+
 "ALWAYS_OPEN_SAFARI_OPTION_TITLE" = "Använd extern webbläsare";
 "ALWAYS_OPEN_SAFARI_OPTION_DETAIL_TITLE" = "Öppna länkar i Safari eller din standardwebbläsare.";
 
@@ -378,3 +381,9 @@
 "FOLLOW_OFFICIAL_PAGE_SECTION_HEADER_TITLE" = "Följ NeoFreeBird";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Här var det tomt.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Förbättrad webbläsare i appen (beta)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Använd Twitters nya webbläsare i appen för att öppna länkar.";
+"CUSTOM_TAB_BAR_PROFILE" = "Profil";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Dölj Blue-verifieringsbockar";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Dölj betald verifieringsbock på Tweets. Detta omfattar inte varumärkes- eller myndighetskonton.";

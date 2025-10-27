@@ -374,3 +374,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Teste experimentelle Funktionen.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Hier gibt es noch nichts zu sehen.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Verbesserter In-App-Browser (Beta)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Verwende Twitters neuen In-App-Browser zum Öffnen von Links.";
+"CUSTOM_TAB_BAR_PROFILE" = "Profil";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Blue-Verifizierungsabzeichen ausblenden";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Bezahltes Verifizierungsabzeichen bei Tweets ausblenden. Dies gilt nicht für Marken- oder Regierungskonten.";

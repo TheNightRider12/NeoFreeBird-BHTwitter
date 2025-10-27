@@ -377,3 +377,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Спробуйте експериментальні функції.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Поки що тут нічого немає.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Покращений браузер у додатку (бета)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Скористайтеся новим браузером у додатку Twitter для відкриття посилань.";
+"CUSTOM_TAB_BAR_PROFILE" = "Профіль";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Приховати галочки підтвердження Blue";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Приховати платну галочку підтвердження у твітах. Це не стосується облікових записів брендів чи державних установ.";

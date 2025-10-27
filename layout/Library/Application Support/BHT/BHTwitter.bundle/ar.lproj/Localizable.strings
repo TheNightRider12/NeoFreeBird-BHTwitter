@@ -376,3 +376,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "جرّب الميزات غير المستقرة.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "لا يوجد شيء هنا — حتى الآن.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "متصفح محسّن داخل التطبيق (بيتا)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "استخدم متصفح تويتر الجديد داخل التطبيق لفتح الروابط.";
+"CUSTOM_TAB_BAR_PROFILE" = "الملف الشخصي";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "إخفاء علامات التحقق Blue";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "إخفاء علامة التحقق المدفوعة على التغريدات. لا يشمل ذلك حسابات العلامات التجارية أو الحسابات الحكومية.";

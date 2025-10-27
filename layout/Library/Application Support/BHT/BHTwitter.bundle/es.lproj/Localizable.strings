@@ -375,3 +375,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Prueba funciones inestables.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Nada que ver aquí... todavía.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Navegador integrado mejorado (beta)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Usa el nuevo navegador integrado de Twitter para abrir enlaces.";
+"CUSTOM_TAB_BAR_PROFILE" = "Perfil";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Ocultar insignias de verificación de Blue";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Ocultar la insignia de verificación de pago en los Tweets. Esto no incluye cuentas de marcas o gubernamentales.";

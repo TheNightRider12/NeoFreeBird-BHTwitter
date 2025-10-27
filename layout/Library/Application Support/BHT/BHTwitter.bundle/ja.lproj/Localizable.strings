@@ -381,3 +381,9 @@
 "FOLLOW_OFFICIAL_PAGE_SECTION_HEADER_TITLE" = "NeoFreeBirdをフォロー";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "ここには何もありません。";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "改良されたアプリ内ブラウザ（ベータ版）";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "リンクを開くには、Twitterの新しいアプリ内ブラウザを使用します。";
+"CUSTOM_TAB_BAR_PROFILE" = "プロフィール";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Blueの認証バッジを非表示";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "ツイートの有料認証バッジを非表示にします。ブランドや政府のアカウントは対象外です。";

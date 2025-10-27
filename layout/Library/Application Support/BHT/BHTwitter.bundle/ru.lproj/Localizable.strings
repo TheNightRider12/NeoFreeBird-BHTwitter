@@ -375,3 +375,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Попробуйте нестабильные функции.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Здесь пока ничего нет.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Улучшенный встроенный браузер (бета)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Используйте новый встроенный браузер Twitter для открытия ссылок.";
+"CUSTOM_TAB_BAR_PROFILE" = "Профиль";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Скрыть галочки подтверждения Blue";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Скрыть платную галочку подтверждения в твитах. Это не касается аккаунтов брендов или государственных аккаунтов.";

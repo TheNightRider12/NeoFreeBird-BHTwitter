@@ -375,3 +375,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "试用不稳定的新功能。";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "这里暂时还没有内容。";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "改进的应用内浏览器（测试版）";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "使用 Twitter 的新应用内浏览器打开链接。";
+"CUSTOM_TAB_BAR_PROFILE" = "个人资料";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "隐藏 Blue 认证标记";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "在推文中隐藏付费认证标记。这不包括品牌或政府账号。";

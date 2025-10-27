@@ -375,3 +375,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Isprobajte nestabilne značajke.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Ovdje još ništa ne prikazujemo.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Poboljšani preglednik u aplikaciji (beta)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Koristite Twitterov novi preglednik u aplikaciji za otvaranje poveznica.";
+"CUSTOM_TAB_BAR_PROFILE" = "Profil";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Sakrij Blue oznake provjere";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Sakrij plaćenu oznaku provjere na Tweetovima. To ne uključuje račune brendova niti vladine račune.";

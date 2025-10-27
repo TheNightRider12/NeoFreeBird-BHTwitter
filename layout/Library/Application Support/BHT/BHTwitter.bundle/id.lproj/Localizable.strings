@@ -375,3 +375,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Coba fitur yang belum stabil.";
 
 "MODERN_SETTINGS_PLACEHOLDER_TEXT" = "Belum ada yang bisa dilihat di sini.";
+
+"NEW_INAPP_WEB_OPTION_TITLE" = "Browser dalam aplikasi yang ditingkatkan (beta)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "Gunakan browser dalam aplikasi baru Twitter untuk membuka tautan.";
+"CUSTOM_TAB_BAR_PROFILE" = "Profil";
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Sembunyikan lencana verifikasi Blue";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "Sembunyikan lencana verifikasi berbayar pada Tweet. Ini tidak termasuk akun merek atau pemerintah.";
