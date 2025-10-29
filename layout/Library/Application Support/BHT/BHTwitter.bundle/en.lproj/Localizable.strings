@@ -384,6 +384,9 @@
 "MODERN_SETTINGS_EXPERIMENTAL_TITLE" = "Labs";
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "Try features we're currently testing.";
 
+"MODERN_SETTINGS_DEBUG_TITLE" = "Debug";
+"MODERN_SETTINGS_DEBUG_SUBTITLE" = "Find out why something isn't working.";
+
 "SPECIAL_THANKS_SECTION_HEADER_TITLE" = "Special thanks";
 "FOLLOW_OFFICIAL_PAGE_SECTION_HEADER_TITLE" = "Follow NeoFreeBird";
 
