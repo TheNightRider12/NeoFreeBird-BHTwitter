@@ -45,6 +45,9 @@
 "PADLOCK_OPTION_TITLE" = "Twitterをロック";
 "PADLOCK_OPTION_DETAIL_TITLE" = "Twitterを開くためにFace IDまたはパスコード認証を必要とします。";
 
+"NEW_INAPP_WEB_OPTION_TITLE" = "アプリ内ブラウザを改善(ベータ版)";
+"NEW_INAPP_WEB_DETAIL_TITLE" = "リンクを開く際に、Twitterの新しいアプリ内ブラウザを使用します。";
+
 "ALWAYS_OPEN_SAFARI_OPTION_TITLE" = "外部ブラウザを使用";
 "ALWAYS_OPEN_SAFARI_OPTION_DETAIL_TITLE" = "Safariまたはデフォルトのブラウザでリンクを開きます。";
 
@@ -73,6 +76,9 @@
 
 "TWEET_CONFIRM_OPTION_TITLE" = "ツイートの確認";
 "TWEET_CONFIRM_OPTION_DETAIL_TITLE" = "ツイートする前に確認ダイアログを表示します。";
+
+"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Twitter Blueの確認済みチェックマークを非表示";
+"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "ツイートの有料認証済みチェックマークを非表示にします。ブランドアカウントや政府アカウントは対象外です。";
 
 "HIDE_VIEW_COUNT_OPTION_TITLE" = "表示回数を非表示";
 "HIDE_VIEW_COUNT_OPTION_DETAIL_TITLE" = "ツイートの下にある表示回数を非表示にします。";
@@ -239,8 +245,8 @@
 /*Debug*/
 "DEBUG_SECTION_HEADER_TITLE" = "デバッグ";
 
-"FLEX_OPTION_TITLE" = "FLEXデバッグモード";
-"FLEX_OPTION_DETAIL_TITLE" = "FLEXを使用してTwitterをデバッグします。";
+"FLEX_OPTION_TITLE" = "デバッグモード";
+"FLEX_OPTION_DETAIL_TITLE" = "Twitterのビューとデータをデバッグおよび検査するためのFLEXを有効にします。";
 
 "CLEAR_SOURCE_LABEL_CACHE_TITLE" = "Cookieを消去";
 "CLEAR_SOURCE_LABEL_CACHE_DETAIL_TITLE" = "ソースラベルCookieを消去し、強制的に更新します。";
@@ -313,6 +319,7 @@
 "CUSTOM_TAB_BAR_MESSAGES" = "ダイレクトメッセージ";
 "CUSTOM_TAB_BAR_GROK" = "Grok";
 "CUSTOM_TAB_BAR_VIDEO" = "動画";
+"CUSTOM_TAB_BAR_PROFILE" = "プロフィール";
 "CUSTOM_TAB_BAR_SECTION_1_TITLE" = "有効";
 "CUSTOM_TAB_BAR_SECTION_2_TITLE" = "無効";
 "CUSTOM_TAB_BAR_RESET_BUTTON" = "デフォルトに戻す";
@@ -366,7 +373,7 @@
 "MODERN_SETTINGS_TWITTER_BLUE_SUBTITLE" = "広告の非表示、ツイートの取り消し、テーマ、カスタムアプリアイコンなどのTwitter Blue機能のロックを解除しましょう。";
 
 "MODERN_SETTINGS_PROFILES_TITLE" = "プロフィール";
-"MODERN_SETTINGS_PROFILES_SUBTITLE" = "ユーザープロフィールに表示されるものを変更します。";
+"MODERN_SETTINGS_PROFILES_SUBTITLE" = "ユーザープロフィールに表示されるものを選択できます。";
 
 "MODERN_SETTINGS_TWEETS_TITLE" = "ツイートと返信";
 "MODERN_SETTINGS_TWEETS_SUBTITLE" = "ツイートの外観を変更し、使用しない可能性のある機能を削除します。";
@@ -377,13 +384,10 @@
 "MODERN_SETTINGS_EXPERIMENTAL_TITLE" = "実験的機能";
 "MODERN_SETTINGS_EXPERIMENTAL_SUBTITLE" = "現在テスト中の機能をお試しください。";
 
+"MODERN_SETTINGS_DEBUG_TITLE" = "デバッグ";
+"MODERN_SETTINGS_DEBUG_SUBTITLE" = "何かが機能しない理由を調べることができます。";
+
 "SPECIAL_THANKS_SECTION_HEADER_TITLE" = "特別な感謝";
 "FOLLOW_OFFICIAL_PAGE_SECTION_HEADER_TITLE" = "NeoFreeBirdをフォロー";
 
-"MODERN_SETTINGS_PLACEHOLDER_TEXT" = "ここには何もありません。";
-
-"NEW_INAPP_WEB_OPTION_TITLE" = "改良されたアプリ内ブラウザ（ベータ版）";
-"NEW_INAPP_WEB_DETAIL_TITLE" = "リンクを開くには、Twitterの新しいアプリ内ブラウザを使用します。";
-"CUSTOM_TAB_BAR_PROFILE" = "プロフィール";
-"HIDE_BLUE_VERIFIED_OPTION_TITLE" = "Blueの認証バッジを非表示";
-"HIDE_BLUE_VERIFIED_OPTION_DETAIL_TITLE" = "ツイートの有料認証バッジを非表示にします。ブランドや政府のアカウントは対象外です。";
+"MODERN_SETTINGS_PLACEHOLDER_TEXT" = "ここには何もありません — 今はまだ。";
